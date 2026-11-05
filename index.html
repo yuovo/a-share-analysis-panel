@@ -6,21 +6,21 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
 <meta http-equiv="Pragma" content="no-cache" />
 <meta http-equiv="Expires" content="0" />
-<meta name="apanel-build" content="2026-11-06-abyss-jade-terminal-v1" />
+<meta name="apanel-build" content="2026-11-06-obsidian-frost-v2" />
 <!-- 手机（iOS）加到主屏幕后按“应用”方式全屏运行 -->
 <meta name="apple-mobile-web-app-capable" content="yes" />
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
 <meta name="apple-mobile-web-app-title" content="A股智研" />
 <meta name="mobile-web-app-capable" content="yes" />
-<meta name="app-version" content="20261106-abyss-jade-terminal-v1" />
+<meta name="app-version" content="20261106-obsidian-frost-v2" />
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
 <meta http-equiv="Pragma" content="no-cache" />
 <meta http-equiv="Expires" content="0" />
-<meta name="theme-color" content="#071312" />
+<meta name="theme-color" content="#080b10" />
 <meta name="format-detection" content="telephone=no" />
 <link rel="apple-touch-icon" href="apple-touch-icon.png" />
 <link rel="icon" href="favicon-64.png" />
-<title>A股智研终端 · 实时策略工作台</title>
+<title>A股策略终端 · 极夜研究工作台</title>
 <style>
 /* ============================================================
    全局配色（深色金融风格）
@@ -1130,6 +1130,180 @@ table.tbl tbody tr:hover{background:rgba(77,194,160,.075);}
   }
   .side-brand-copy h1{font-size:16px;}
 }
+
+/* ============================================================
+   2026-11-06 · Obsidian Frost v2
+   中性石墨底 + 冰蓝信息层级 + 暖金强调，弱化大面积绿色。
+   ============================================================ */
+:root{
+  --bg:#080b10;
+  --bg2:#0b1017;
+  --panel:#10161e;
+  --panel2:#151d27;
+  --line:#27313d;
+  --line2:#3b4858;
+  --text:#f0f4f8;
+  --muted:#9aa8b8;
+  --dim:#6c7a8c;
+  --red:#ff6672;
+  --green:#32c691;
+  --gold:#e5bd6d;
+  --orange:#ff9a61;
+  --blue:#68c6f2;
+  --red-bg:rgba(255,102,114,.11);
+  --green-bg:rgba(50,198,145,.11);
+  --gold-bg:rgba(229,189,109,.11);
+  --orange-bg:rgba(255,154,97,.11);
+  --blue-bg:rgba(104,198,242,.11);
+  --radius:16px;
+}
+html{background:#080b10;}
+body{
+  background:
+    radial-gradient(1100px 580px at 12% -14%,rgba(48,92,137,.22),transparent 62%),
+    radial-gradient(900px 520px at 96% -4%,rgba(125,94,42,.12),transparent 58%),
+    linear-gradient(180deg,#080b10 0%,#090e14 54%,#070a0f 100%);
+  color:var(--text);
+  font-family:"Segoe UI Variable","Microsoft YaHei UI","PingFang SC",system-ui,sans-serif;
+}
+body::before{
+  opacity:.13;
+  background-image:
+    linear-gradient(rgba(137,163,192,.09) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(137,163,192,.09) 1px,transparent 1px);
+  background-size:42px 42px;
+  mask-image:linear-gradient(to bottom,#000 0%,transparent 66%);
+}
+.topbar{
+  margin:12px 18px 0;
+  padding:10px 16px;
+  border:1px solid #26323f;
+  border-radius:16px;
+  background:linear-gradient(180deg,rgba(14,20,29,.94),rgba(9,14,20,.9));
+  box-shadow:0 16px 42px rgba(0,0,0,.28),inset 0 1px rgba(255,255,255,.035);
+  backdrop-filter:blur(20px) saturate(115%);
+}
+.page-eyebrow{color:#75859a;letter-spacing:1.6px;}
+.page-context strong{color:#f3f7fb;letter-spacing:.2px;}
+.topbar .clock{color:#8998aa;}
+.src-line{color:#9eacbd;}
+.logo{
+  color:#07111a;
+  background:linear-gradient(145deg,#8bdcff,#55bde9 55%,#e5bd6d);
+  box-shadow:0 10px 26px rgba(80,181,225,.18);
+}
+.btn{
+  border-color:#344150;
+  border-radius:10px;
+  background:linear-gradient(180deg,#17212c,#101821);
+  color:#eef4f8;
+  box-shadow:0 1px rgba(255,255,255,.025);
+}
+.btn:hover{border-color:#6ebde5;color:#bdeaff;box-shadow:0 0 0 3px rgba(104,198,242,.08);}
+.btn.primary{
+  background:linear-gradient(135deg,#287da3,#56bce8);
+  border-color:#70cdf2;
+  color:#06121b;
+  font-weight:800;
+  box-shadow:0 8px 22px rgba(69,171,215,.15);
+}
+.btn.primary:hover{color:#071722;border-color:#a1e5ff;}
+.input,select.input{border-color:#2b3745;background:#0c131b;color:#edf3f8;}
+.input:focus,select.input:focus{border-color:#65bfe9;box-shadow:0 0 0 3px rgba(101,191,233,.12);}
+.side-nav{
+  background:
+    radial-gradient(280px 240px at 18% 0%,rgba(60,125,171,.14),transparent 70%),
+    linear-gradient(180deg,#0c1118 0%,#090e15 65%,#070b10 100%);
+  border-right:1px solid #23303d;
+  box-shadow:16px 0 46px rgba(0,0,0,.24);
+}
+.side-nav::after{background:linear-gradient(90deg,transparent,rgba(104,198,242,.58),transparent);}
+.side-brand{border-bottom-color:rgba(91,116,143,.22);}
+.side-logo{
+  border-radius:13px;
+  color:#07121a;
+  background:linear-gradient(145deg,#8bdcff,#d9c07d);
+  border-color:rgba(153,220,250,.48);
+  box-shadow:0 0 24px rgba(87,189,230,.17);
+}
+.side-brand-copy h1{color:#f6f9fc;font-size:16.5px;letter-spacing:.65px;}
+.side-brand-copy p{color:#718196;letter-spacing:1.65px;}
+.side-collapse{border-color:#2b3746;background:rgba(119,143,171,.06);color:#7e8fa2;}
+.side-collapse:hover{color:#bcecff;border-color:rgba(112,205,242,.46);background:rgba(73,160,197,.08);}
+.side-nav .navbar a{color:#8796a7;border-radius:12px;}
+.side-nav .navbar a:hover{color:#d3e7f4;border-color:rgba(92,156,193,.18);background:rgba(76,126,158,.07);}
+.side-nav .navbar a.on{
+  color:#b8e9ff;
+  border-color:rgba(104,198,242,.34);
+  background:linear-gradient(90deg,rgba(43,117,154,.22),rgba(34,63,84,.08));
+  box-shadow:inset 0 0 20px rgba(104,198,242,.045);
+}
+.side-nav .navbar a.on::before{background:#71cef5;box-shadow:0 0 12px rgba(113,206,245,.64);}
+.side-foot{color:#6d7d90;border-top-color:rgba(91,116,143,.17);}
+.side-foot i{background:#56d8aa;box-shadow:0 0 9px rgba(86,216,170,.68);}
+main{padding:18px 24px 42px;gap:18px;}
+.panel{
+  background:linear-gradient(180deg,rgba(17,24,33,.96),rgba(12,18,25,.96));
+  border:1px solid #283441;
+  border-radius:17px;
+  padding:18px 20px 20px;
+  box-shadow:0 18px 45px rgba(0,0,0,.2),inset 0 1px rgba(255,255,255,.025);
+}
+.panel-head{padding-bottom:12px;margin-bottom:15px;border-bottom:1px solid rgba(73,90,108,.46);}
+.panel-head h2{font-size:16.5px;color:#f2f6fa;letter-spacing:.35px;}
+.panel-head h2 .num{
+  width:24px;height:24px;border-radius:8px;
+  color:#9addf8;background:rgba(104,198,242,.11);border-color:rgba(104,198,242,.31);
+}
+.card{
+  background:linear-gradient(180deg,rgba(19,27,37,.94),rgba(14,21,29,.95));
+  border-color:#263442;
+  border-radius:14px;
+  padding:13px 14px;
+}
+.card:hover{border-color:#4b6579;box-shadow:0 12px 28px rgba(0,0,0,.18);}
+.card-title{color:#eff5f9;}
+.card-sub{color:#7f8fa2;}
+.tag{border-radius:8px;}
+.tag.red{color:#ff929a;background:rgba(255,102,114,.1);border-color:rgba(255,102,114,.3);}
+.tag.green{color:#62dfb3;background:rgba(50,198,145,.1);border-color:rgba(50,198,145,.28);}
+.tag.gold{color:#ebcd89;background:rgba(229,189,109,.1);border-color:rgba(229,189,109,.3);}
+.tag.orange{color:#ffb182;background:rgba(255,154,97,.1);border-color:rgba(255,154,97,.29);}
+.tag.blue{color:#98ddf8;background:rgba(104,198,242,.1);border-color:rgba(104,198,242,.28);}
+.tag.gray{background:rgba(144,159,178,.08);border-color:#344252;color:#94a2b2;}
+.advice{
+  border-radius:16px;
+  background:linear-gradient(135deg,rgba(23,36,49,.96),rgba(14,24,34,.95));
+  border-color:#304253;
+}
+.advice.risk{background:linear-gradient(135deg,rgba(67,38,39,.82),rgba(36,24,27,.9));border-color:rgba(255,127,114,.28);}
+.advice.opp{background:linear-gradient(135deg,rgba(27,52,65,.96),rgba(17,35,44,.95));border-color:rgba(104,198,242,.32);}
+.advice.neutral{background:linear-gradient(135deg,rgba(23,34,47,.96),rgba(14,24,34,.95));border-color:#304253;}
+.auction-hero::after{background:radial-gradient(circle,rgba(104,198,242,.16),transparent 70%);}
+.tbl-wrap{border-color:#2b3947;border-radius:12px;background:rgba(8,14,20,.46);}
+table.tbl th{background:#141e29;color:#91a3b5;border-bottom-color:#2c3a48;}
+table.tbl td{border-bottom-color:rgba(45,59,73,.6);}
+table.tbl tbody tr:hover{background:rgba(104,198,242,.06);}
+.note,.hint-box,.risk-box{border-color:#2d3a47;background:rgba(13,21,29,.78);}
+.auction-pick,.trade-plan,.auction-decision{border-color:#304151;}
+.price{letter-spacing:.8px;}
+::-webkit-scrollbar{width:9px;height:9px;}
+::-webkit-scrollbar-thumb{background:#344454;border:2px solid #080c11;border-radius:9px;}
+::-webkit-scrollbar-track{background:transparent;}
+
+@media (max-width:760px){
+  body{padding-bottom:24px;}
+  .topbar{margin:8px 8px 0;padding:8px 10px;border-radius:14px;}
+  .nav-trigger{color:#b9eaff;border-color:rgba(104,198,242,.32);background:rgba(48,114,148,.15);}
+  main{padding:12px 9px 28px;gap:13px;}
+  .panel{padding:14px 12px 15px;border-radius:15px;}
+  .panel-head{margin-bottom:12px;}
+  .panel-head h2{font-size:15px;}
+  .card{padding:12px;border-radius:13px;}
+  .price{font-size:20px;}
+  .side-nav{width:min(84vw,286px);border-radius:0 20px 20px 0;}
+  .side-brand-copy h1{font-size:15.5px;}
+}
 </style>
 </head>
 
@@ -1142,8 +1316,8 @@ table.tbl tbody tr:hover{background:rgba(77,194,160,.075);}
         <svg viewBox="0 0 24 24"><path d="M4 18V9m5 9V5m5 13v-7m5 7V3"/><path d="M3 20h18"/></svg>
       </div>
       <div class="side-brand-copy">
-        <h1>A股智研终端</h1>
-        <p>A-SHARE INTELLIGENCE</p>
+        <h1>A股策略终端</h1>
+        <p>MARKET INTELLIGENCE</p>
       </div>
     </div>
     <button class="side-collapse" id="navCollapse" type="button" aria-label="收起侧边栏" title="收起侧边栏">
