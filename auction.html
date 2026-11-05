@@ -1,0 +1,1325 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#f4f0e7">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="竞价优选">
+  <meta name="format-detection" content="telephone=no">
+  <meta name="apanel-build" content="2026-11-06-auction-history-sell-v13">
+  <link rel="manifest" href="./manifest.webmanifest">
+  <link rel="apple-touch-icon" href="./apple-touch-icon.png">
+  <link rel="icon" href="./apple-touch-icon.png">
+  <style>
+:root{
+  --bg:#f4f1e9;
+  --surface:#fffdf8;
+  --surface-2:#f9f5eb;
+  --ink:#173038;
+  --ink-2:#53666b;
+  --line:#d9d1c3;
+  --forest:#143d35;
+  --teal:#087960;
+  --teal-soft:#dff1e9;
+  --amber:#bc7627;
+  --amber-soft:#f6e7ce;
+  --red:#b64249;
+  --red-soft:#f7e0e1;
+  --blue:#315f78;
+  --shadow:0 14px 40px rgba(54,52,42,.09);
+}
+
+*{box-sizing:border-box}
+html{color-scheme:light;background:var(--bg)}
+body{
+  margin:0;
+  color:var(--ink);
+  background:
+    radial-gradient(900px 500px at 90% -8%,rgba(191,164,110,.16),transparent 65%),
+    linear-gradient(90deg,rgba(76,66,45,.035) 1px,transparent 1px),
+    linear-gradient(rgba(76,66,45,.035) 1px,transparent 1px),
+    var(--bg);
+  background-size:auto,30px 30px,30px 30px,auto;
+  font-family:"Aptos","PingFang SC","Microsoft YaHei",sans-serif;
+  -webkit-tap-highlight-color:transparent;
+}
+button{font:inherit}
+
+.top{
+  position:sticky;top:0;z-index:20;
+  display:flex;align-items:center;justify-content:space-between;gap:16px;
+  min-height:70px;padding:11px max(18px,calc((100vw - 1080px)/2));
+  border-bottom:1px solid rgba(89,77,52,.14);
+  background:rgba(249,246,238,.92);
+  backdrop-filter:blur(16px);
+}
+.brand{display:flex;align-items:center;gap:11px;color:inherit;text-decoration:none;min-width:0}
+.brand-mark{
+  width:40px;height:40px;border-radius:13px;flex:none;
+  display:flex;align-items:flex-end;justify-content:center;gap:3px;padding:9px;
+  background:var(--forest);box-shadow:0 8px 20px rgba(20,61,53,.18);
+}
+.brand-mark i{display:block;width:4px;border-radius:4px;background:#efc56e}
+.brand-mark i:nth-child(1){height:9px}.brand-mark i:nth-child(2){height:17px}.brand-mark i:nth-child(3){height:12px}
+.brand strong{display:block;font:700 18px/1.2 Georgia,"Songti SC",serif;letter-spacing:.3px}
+.brand small{display:block;margin-top:3px;color:#8a7962;font:600 8.5px/1.2 Consolas,monospace;letter-spacing:1.3px}
+.top-actions{display:flex;align-items:center;gap:9px}
+.clock{font:600 12px/1 Consolas,monospace;color:var(--ink-2)}
+.icon-button{
+  border:1px solid #c8bda9;border-radius:999px;background:#fffdf8;color:var(--forest);
+  padding:9px 13px;font-size:12px;font-weight:700;cursor:pointer;
+}
+
+main{width:min(1080px,calc(100% - 28px));margin:0 auto;padding:26px 0 44px}
+.hero{
+  padding:24px 26px 22px;
+  border-radius:22px;
+  color:#fffdf8;
+  background:
+    radial-gradient(330px 190px at 92% 4%,rgba(239,197,110,.25),transparent 70%),
+    linear-gradient(135deg,#173f37,#0e2d27);
+  box-shadow:0 18px 55px rgba(24,58,50,.2);
+}
+.hero-head{display:flex;align-items:flex-start;justify-content:space-between;gap:18px}
+.date-line{margin:0 0 7px;color:#aec7be;font:600 10px/1.2 Consolas,monospace;letter-spacing:1.3px}
+.hero h1{margin:0;font:700 clamp(28px,4vw,42px)/1.15 Georgia,"Songti SC",serif;letter-spacing:-.7px}
+.hero-sub{max-width:700px;margin:13px 0 0;color:#c2d4ce;font-size:13px;line-height:1.75}
+.hero-actions{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-top:20px}
+.primary{
+  min-height:42px;padding:10px 21px;border:0;border-radius:999px;
+  background:#efc56e;color:#17352e;font-size:13px;font-weight:800;cursor:pointer;
+  box-shadow:0 8px 22px rgba(0,0,0,.15);
+}
+.primary:hover{background:#ffda85}
+.primary:disabled{opacity:.74;cursor:default}
+.action-hint{color:#afc6be;font-size:11.5px}
+.phase-tag{
+  display:inline-flex;align-items:center;min-height:27px;padding:5px 11px;border-radius:999px;
+  border:1px solid rgba(255,255,255,.18);background:rgba(255,255,255,.08);
+  color:#f2e4bc;font-size:11px;white-space:nowrap;
+}
+
+.decision{
+  display:flex;align-items:center;justify-content:space-between;gap:22px;
+  margin-top:16px;padding:20px 23px;border:1px solid #cadbd4;border-radius:19px;
+  background:linear-gradient(105deg,#fffefb,#f0f8f4);box-shadow:var(--shadow);
+}
+.section-label{display:block;color:#8a7962;font:700 9.5px/1.2 Consolas,monospace;letter-spacing:1.2px}
+.decision h2{margin:7px 0 0;font:700 25px/1.3 Georgia,"Songti SC",serif;color:var(--forest)}
+.decision p{margin:7px 0 0;color:var(--ink-2);font-size:12.5px;line-height:1.65}
+.score-orbit{
+  width:116px;height:116px;flex:none;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  border-radius:50%;border:1px solid #d2c4aa;
+  background:radial-gradient(circle,#fffdf8 48%,#f4ead8 49%,#f4ead8 51%,#fffdf8 52%);
+}
+.score-orbit strong{font:700 34px/.95 Georgia,serif;color:var(--teal)}
+.score-orbit span{margin-top:7px;color:#87785f;font-size:9.5px}
+
+.metric-strip{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:14px}
+.metric-strip article{
+  min-width:0;padding:14px 15px;border:1px solid var(--line);border-radius:14px;
+  background:rgba(255,253,248,.9);box-shadow:0 6px 18px rgba(61,54,39,.05);
+}
+.metric-strip span,.metric-strip small{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.metric-strip span{color:#7a847f;font-size:10.5px}
+.metric-strip strong{display:block;margin:7px 0 5px;color:var(--forest);font:700 20px/1.2 Georgia,serif}
+.metric-strip small{color:#8b928e;font-size:9.5px}
+
+.section-block{margin-top:24px}
+.section-head{display:flex;align-items:flex-end;justify-content:space-between;gap:12px;margin-bottom:11px}
+.section-head h2{margin:5px 0 0;font:700 24px/1.25 Georgia,"Songti SC",serif;color:var(--forest)}
+.count-tag{font:700 11px/1 Consolas,monospace;color:#5e6d68;padding:7px 9px;border-radius:999px;background:#e8e2d6}
+.picks{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.pick-card{
+  position:relative;overflow:hidden;padding:17px 18px;border:1px solid #d6cec0;border-radius:17px;
+  background:#fffdf8;box-shadow:0 10px 30px rgba(71,61,41,.07);
+}
+.pick-card::before{content:"";position:absolute;inset:0 auto 0 0;width:4px;background:var(--teal)}
+.pick-top{display:flex;align-items:flex-start;justify-content:space-between;gap:10px}
+.pick-rank{color:#9a8c77;font:700 10px/1 Consolas,monospace}
+.pick-card h3{margin:5px 0 0;font:700 19px/1.25 Georgia,"Songti SC",serif;color:var(--forest)}
+.pick-score{font:700 27px/1 Georgia,serif;color:var(--teal)}
+.pick-meta{display:flex;gap:6px;flex-wrap:wrap;margin-top:11px}
+.pick-meta span{padding:4px 8px;border-radius:999px;background:#f2ece0;color:#6c6559;font-size:10.5px}
+.pick-body{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:14px}
+.pick-body div{padding-top:8px;border-top:1px solid #e4ddd1}
+.pick-body small{display:block;color:#8b928e;font-size:9px}
+.pick-body b{display:block;margin-top:4px;color:var(--ink);font:700 12.5px/1.3 Consolas,monospace}
+.pick-note{margin:12px 0 0;color:#52625d;font-size:11.5px;line-height:1.65}
+.pick-rule{margin-top:10px;padding:9px 10px;border-radius:10px;background:#edf6f2;color:#285d50;font-size:11px;line-height:1.6}
+.empty-state,.empty{padding:22px;text-align:center;color:#75817c;font-size:12.5px}
+.previous-block{padding:16px;border:1px solid #d7cdbc;border-radius:17px;background:linear-gradient(145deg,#fffdf8,#f7f1e5)}
+.previous-block .section-head{margin-bottom:5px}
+.previous-hint{margin:0 0 12px;color:#6e7a75;font-size:11.5px;line-height:1.65}
+.track-card{background:#fffefb;border-color:#d8cdb9}
+.track-card::before{background:var(--amber)}
+.track-badge{display:inline-flex;align-items:center;min-height:25px;padding:4px 9px;border-radius:999px;font-size:10.5px;font-weight:700;white-space:nowrap}
+.track-badge.wait{background:#ece8df;color:#756d60}
+.track-badge.hold{background:var(--teal-soft);color:#17624f}
+.track-badge.watch{background:var(--amber-soft);color:#8d5a20}
+.track-badge.exit{background:var(--red-soft);color:#96373f}
+.track-price{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:12px;padding-top:11px;border-top:1px solid #e5dccd}
+.track-price small{display:block;color:#8b928e;font-size:9px}
+.track-price b{display:block;margin-top:4px;color:var(--ink);font:700 12px/1.35 Consolas,monospace}
+.track-plan{margin-top:11px;padding:10px 11px;border-radius:10px;background:#fbf3e6;color:#73582e;font-size:11.5px;line-height:1.65}
+.track-plan b{color:#543d1e}
+
+.fold{margin-top:18px;border:1px solid var(--line);border-radius:15px;background:rgba(255,253,248,.9);overflow:hidden}
+.fold summary{
+  display:flex;align-items:center;justify-content:space-between;gap:12px;
+  padding:15px 17px;cursor:pointer;font:700 13px/1.4 Georgia,"Songti SC",serif;color:var(--forest);
+}
+.fold summary::marker{content:""}
+.fold summary b{color:#78847f;font:600 10px/1 Consolas,monospace}
+.table-wrap{overflow:auto;border-top:1px solid var(--line)}
+table{width:100%;border-collapse:collapse;font-size:12px}
+th,td{padding:9px 10px;text-align:left;border-top:1px solid #ece5da;white-space:nowrap}
+th{color:#7d8782;background:#f2ede3;font-size:10px;letter-spacing:.4px}
+td small{display:block;color:#8c9691;font-size:9px}
+.rules-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:9px;padding:0 14px 14px}
+.rules-grid article{padding:12px;border:1px solid #e4d9c8;border-radius:12px;background:#fbf6ed}
+.rules-grid span{font:700 12px/1 Georgia,serif;color:var(--amber)}
+.rules-grid strong{display:block;margin:7px 0;color:var(--forest);font-size:12px}
+.rules-grid p{margin:0;color:#687570;font-size:10.5px;line-height:1.6}
+.discipline{margin:0 14px 14px;padding:11px 12px;border-radius:11px;background:#edf5f1;color:#275c50;font-size:11.5px;line-height:1.7}
+.sell-script{padding:0 15px 15px}
+.sell-script p{display:grid;grid-template-columns:120px 1fr;gap:10px;margin:8px 0;padding-top:8px;border-top:1px solid #ede5d9;font-size:11.5px}
+.sell-script b{color:#8d5a20}.sell-script span{color:#64716c}
+footer{margin-top:25px;padding:18px 2px 0;border-top:1px solid #ded6c9;color:#84908b;font-size:10.5px;line-height:1.7}
+footer p{margin:3px 0}
+.toast{position:fixed;left:50%;bottom:22px;z-index:50;max-width:86vw;transform:translate(-50%,20px);opacity:0;pointer-events:none;padding:10px 14px;border-radius:999px;background:#173d35;color:#fff;font-size:12px;box-shadow:0 10px 30px rgba(0,0,0,.18);transition:.2s}
+.toast.show{transform:translate(-50%,0);opacity:1}
+.loading .score-orbit{animation:pulse 1.1s ease-in-out infinite alternate}
+@keyframes pulse{to{transform:scale(.96);opacity:.72}}
+
+@media (max-width:760px){
+  .top{
+    display:grid;grid-template-columns:minmax(0,1fr) auto;grid-template-areas:"brand refresh" "clock clock";
+    align-items:center;gap:5px 12px;
+    min-height:calc(66px + env(safe-area-inset-top,0px));
+    padding:
+      calc(9px + env(safe-area-inset-top,0px))
+      max(14px,env(safe-area-inset-right,0px))
+      9px
+      max(14px,env(safe-area-inset-left,0px));
+  }
+  .brand{grid-area:brand}
+  .brand-mark{width:36px;height:36px;border-radius:11px;padding:8px}
+  .brand strong{font-size:16px}.brand small{font-size:7.5px}
+  .top-actions{display:contents}
+  .top-actions .clock{grid-area:clock;display:block;justify-self:start;padding-left:47px;font-size:10.5px}
+  .icon-button{
+    grid-area:refresh;justify-self:end;min-width:64px;min-height:44px;padding:0 16px;
+    font-size:12px;touch-action:manipulation;-webkit-appearance:none;
+  }
+  main{width:calc(100% - 20px);padding:12px 0 calc(30px + env(safe-area-inset-bottom,0px))}
+  .hero{padding:18px 16px;border-radius:17px}
+  .hero h1{font-size:28px}.hero-sub{font-size:12px}.phase-tag{font-size:10px}
+  .decision{display:block;padding:16px 15px}
+  .score-orbit{width:auto;height:auto;margin-top:13px;border:0;background:none;display:block;text-align:right}
+  .score-orbit strong{font-size:34px}.score-orbit span{display:inline;margin-left:8px}
+  .metric-strip{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .metric-strip article{padding:12px}
+  .metric-strip strong{font-size:18px}
+  .picks{grid-template-columns:1fr}
+  .pick-card{padding:15px}
+  .pick-body{gap:6px}
+  .rules-grid{grid-template-columns:1fr 1fr}
+  .sell-script p{grid-template-columns:1fr;gap:3px}
+  .fold summary{padding:13px}
+  .toast{bottom:calc(18px + env(safe-area-inset-bottom,0px))}
+}
+
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation:none!important;transition:none!important}
+}
+
+</style>
+  <title>竞价优选 · 09:25</title>
+</head>
+<body>
+  <header class="top">
+    <a class="brand" href="./" aria-label="竞价优选首页">
+      <span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i></span>
+      <span><strong>竞价优选</strong><small>AUCTION SIGNAL DESK</small></span>
+    </a>
+    <div class="top-actions">
+      <span id="clock" class="clock">--:--:--</span>
+      <button id="refreshBtn" class="icon-button" type="button" aria-label="刷新">刷新</button>
+    </div>
+  </header>
+
+  <main>
+    <section class="hero" aria-labelledby="pageTitle">
+      <div class="hero-head">
+        <div>
+          <p class="date-line" id="dateLine">--</p>
+          <h1 id="pageTitle">早盘竞价优选</h1>
+        </div>
+        <span id="phaseTag" class="phase-tag">等待09:25</span>
+      </div>
+      <p class="hero-sub">09:25撮合完成后自动筛选并锁定。创/科板参与评分，进入前排时降级，由主板按分数递补。</p>
+      <div class="hero-actions">
+        <button id="selectBtn" class="primary" type="button">一键选股</button>
+        <span id="actionHint" class="action-hint">09:25后自动执行</span>
+      </div>
+    </section>
+
+    <section id="decision" class="decision" aria-live="polite">
+      <div class="decision-main">
+        <span class="section-label">今日结论</span>
+        <h2 id="verdict">等待竞价数据</h2>
+        <p id="verdictSub">进入页面会自动检查，不需要先点击按钮。</p>
+      </div>
+      <div class="score-orbit"><strong id="topScore">--</strong><span>首位评分</span></div>
+    </section>
+
+    <section class="metric-strip" aria-label="市场概览">
+      <article><span>情绪周期</span><strong id="cycleText">等待判断</strong><small id="cycleNote">读取连板梯队后确认</small></article>
+      <article><span>最高标竞价</span><strong id="topGap">--</strong><small id="topName">--</small></article>
+      <article><span>动态门槛</span><strong id="threshold">--</strong><small id="pickLimit">最多优选2只</small></article>
+      <article><span>定稿时间</span><strong id="lockTime">--</strong><small id="snapshotTime">等待09:25快照</small></article>
+    </section>
+
+    <section id="previousBlock" class="section-block previous-block">
+      <div class="section-head">
+        <div><span class="section-label">PREVIOUS PICKS · HOLDING TRACK</span><h2>上一交易日优选与今日买卖分析</h2></div>
+        <span id="previousDay" class="count-tag">--</span>
+      </div>
+      <p id="previousHint" class="previous-hint">读取上一交易日定稿；今日09:25后自动更新竞价分类和持仓处理。</p>
+      <div id="previousPicks" class="picks">
+        <div class="empty-state">正在读取上一交易日优选。</div>
+      </div>
+    </section>
+
+    <section class="section-block picks-block">
+      <div class="section-head">
+        <div><span class="section-label">TODAY PICKS</span><h2>今日竞价优选</h2></div>
+        <span id="pickCount" class="count-tag">0只</span>
+      </div>
+      <div id="picks" class="picks">
+        <div class="empty-state">等待09:25后自动筛选。</div>
+      </div>
+    </section>
+
+    <details class="fold" id="candidateFold">
+      <summary><span>候选评分明细</span><b id="candidateCount">0只</b></summary>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>序</th><th>标的</th><th>板块 / 阶段</th><th>竞价</th><th>最终分</th><th>状态</th></tr></thead>
+          <tbody id="candidateBody"><tr><td colspan="6" class="empty">等待数据</td></tr></tbody>
+        </table>
+      </div>
+    </details>
+
+    <details class="fold">
+      <summary><span>连板打板纪律</span><b>1进2 → 4进5+</b></summary>
+      <div class="rules-grid">
+        <article><span>1进2</span><strong>≤1成</strong><p>只做主线内早盘强势板，极小仓试错。</p></article>
+        <article><span>2进3</span><strong>确认后小仓</strong><p>看板块助攻和弱转强，不盲目主做。</p></article>
+        <article><span>3进4</span><strong>核心观察</strong><p>高辨识度、主线支撑、分歧回封，单票最多2–3成。</p></article>
+        <article><span>4进5以上</span><strong>≤1成或不参与</strong><p>只做情绪加速段，不接一致高潮。</p></article>
+      </div>
+      <p class="discipline">退潮空仓，冰点试错；主线为首，3进4为主；炸板转弱即走，不补不扛。</p>
+    </details>
+
+    <details class="fold">
+      <summary><span>次日卖出剧本</span><b>竞价分类执行</b></summary>
+      <div class="sell-script">
+        <p><b>高开&gt;1.5%</b><span>冲高分批止盈，不贪涨停。</span></p>
+        <p><b>平开或小幅低开</b><span>9:30–9:45不翻红、不上均价线则退出。</span></p>
+        <p><b>低开&gt;-2%</b><span>开盘优先止损，不补仓、不扛单。</span></p>
+      </div>
+    </details>
+
+    <footer>
+      <p>本页为量化筛选与盘面复盘参考，不构成投资建议。股市有风险。</p>
+      <p id="footStatus">等待数据</p>
+    </footer>
+  </main>
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+  <script>
+(() => {
+  'use strict';
+
+  const archiveOverride = new URLSearchParams(location.search).get('archive');
+  const API = {
+    zt: 'https://push2ex.eastmoney.com/getTopicZTPool',
+    yzt: 'https://push2ex.eastmoney.com/getYesterdayZTPool',
+    baseline: 'https://push2his.eastmoney.com/api/qt/stock/trends2/get',
+    quote: 'https://qt.gtimg.cn/q=',
+    archive: archiveOverride || 'https://yuovo.github.io/apanel/auction-daily.js'
+  };
+  const ZT_UT = '7eea3edcaed734bea9cbfc24409ed989';
+  const EM_FLOW_UT = 'fa5fd1943c7b386f172d6893dbfba10b';
+  const VERSION = 'auction-v13-20261106-history-corrected';
+  const SNAPSHOT_VERSION = 'auction-snapshot-v1';
+  const LOCK_KEY = 'auction_lite_lock_v2';
+  const HISTORY_KEY = 'auction_lite_selection_history_v1';
+  const LEGACY_SELECTIONS = {
+    '20261105': [
+      {
+        code: 'sh605577', name: '龙版传媒', sector: '出版', height: 3,
+        total: 73.3, price: 16.02, gap: 1.84, firstTime: 101241,
+        stage: '3进4', position: '10%–20%', rank: 1
+      },
+      {
+        code: 'sh605287', name: '德才股份', sector: '装修装饰', height: 1,
+        total: 70.2, price: 50.47, gap: -0.10, firstTime: 94807,
+        stage: '1进2', position: '5%–10%', rank: 2
+      }
+    ]
+  };
+  const state = {
+    loading: false, locked: false, retryAt: 0, sharedCheckAt: 0,
+    sharedLoading: false, booting: false, data: null, activeDay: '',
+    previous: null, archiveRecords: [], previousQuoteAt: 0
+  };
+
+  const $ = (id) => document.getElementById(id);
+  const pad = (n) => String(n).padStart(2, '0');
+  const fmt = (v, d = 1) => Number.isFinite(Number(v)) ? Number(v).toFixed(d) : '--';
+  const sign = (v, d = 2) => Number.isFinite(Number(v)) ? (Number(v) >= 0 ? '+' : '') + Number(v).toFixed(d) : '--';
+  const price = (v) => {
+    const n = Number(v);
+    if (!Number.isFinite(n)) return '--';
+    return n >= 100 ? n.toFixed(1) : n.toFixed(2);
+  };
+  const esc = (v) => String(v == null ? '' : v).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
+  const mean = (a) => a.length ? a.reduce((s, v) => s + v, 0) / a.length : NaN;
+
+  function bjNow() {
+    const text = new Date().toLocaleString('en-US', { timeZone: 'Asia/Shanghai' });
+    return new Date(text);
+  }
+  function ymd(date) {
+    const d = date || bjNow();
+    return `${d.getFullYear()}${pad(d.getMonth() + 1)}${pad(d.getDate())}`;
+  }
+  function ymdOffset(offset) {
+    const d = bjNow();
+    d.setDate(d.getDate() - offset);
+    return ymd(d);
+  }
+  function clockText() {
+    const d = bjNow();
+    return `${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
+  }
+  function dateText() {
+    const d = bjNow();
+    return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())} · ${'日一二三四五六'[d.getDay()]}`;
+  }
+
+  function toast(text) {
+    const el = $('toast');
+    el.textContent = text;
+    el.classList.add('show');
+    clearTimeout(toast.timer);
+    toast.timer = setTimeout(() => el.classList.remove('show'), 2600);
+  }
+
+  function jsonpCallback(url, callbackName, timeout = 16000) {
+    return new Promise((resolve, reject) => {
+      const name = callbackName || `auc_cb_${Date.now()}_${Math.random().toString(36).slice(2)}`;
+      const script = document.createElement('script');
+      let done = false;
+      const cleanup = () => {
+        try { delete window[name]; } catch (_) { window[name] = undefined; }
+        script.remove();
+      };
+      const timer = setTimeout(() => {
+        if (done) return;
+        done = true;
+        cleanup();
+        reject(new Error('请求超时'));
+      }, timeout);
+      window[name] = (data) => {
+        if (done) return;
+        done = true;
+        clearTimeout(timer);
+        cleanup();
+        resolve(data);
+      };
+      script.onerror = () => {
+        if (done) return;
+        done = true;
+        clearTimeout(timer);
+        cleanup();
+        reject(new Error('接口连接失败'));
+      };
+      script.src = url + (url.includes('?') ? '&' : '?') + 'cb=' + name + '&_=' + Date.now();
+      document.head.appendChild(script);
+    });
+  }
+
+  function loadScript(src, charset, timeout = 12000) {
+    return new Promise((resolve, reject) => {
+      const s = document.createElement('script');
+      if (charset) s.charset = charset;
+      let done = false;
+      const finish = (err) => {
+        if (done) return;
+        done = true;
+        clearTimeout(timer);
+        s.remove();
+        err ? reject(err) : resolve();
+      };
+      const timer = setTimeout(() => finish(new Error('行情请求超时')), timeout);
+      s.onload = () => finish();
+      s.onerror = () => finish(new Error('行情接口连接失败'));
+      s.src = src;
+      document.head.appendChild(s);
+    });
+  }
+
+  async function poolOf(endpoint, day, size = 320, sort = 'fbt:asc') {
+    const url = `${endpoint}?ut=${ZT_UT}&dpt=wz.ztzt&Pageindex=0&pagesize=${size}` +
+      `&sort=${encodeURIComponent(sort)}&date=${day}`;
+    const json = await jsonpCallback(url);
+    return json && json.data ? json.data : null;
+  }
+
+  function ztCode(x) {
+    if (!x) return '';
+    if (x.code && /^(sh|sz|bj)\d{6}$/.test(String(x.code).toLowerCase())) return String(x.code).toLowerCase();
+    const c = String(x.c || x.code || '');
+    if (!/^\d{6}$/.test(c)) return '';
+    if (/^(4|8|92)/.test(c)) return 'bj' + c;
+    return (Number(x.m) === 1 ? 'sh' : 'sz') + c;
+  }
+
+  function firstTime(x) {
+    const f = Number(x && x.fbt);
+    if (Number.isFinite(f) && f > 0) return f;
+    const y = Number(x && x.yfbt);
+    return Number.isFinite(y) && y > 0 ? y : NaN;
+  }
+
+  function stage(height) {
+    const h = Math.max(1, Number(height) || 1);
+    if (h === 1) return '1进2';
+    if (h === 2) return '2进3';
+    if (h === 3) return '3进4';
+    return '4进5以上';
+  }
+
+  function boardDowngraded(code) {
+    const n = String(code || '').replace(/^(sh|sz|bj)/, '');
+    return /^(300|301|688|689)/.test(n);
+  }
+
+  async function candidatePool() {
+    const today = ymdOffset(0);
+    for (let offset = 0; offset <= 8; offset++) {
+      const queryDay = ymdOffset(offset);
+      let zt;
+      try {
+        zt = await poolOf(API.zt, queryDay, 300);
+      } catch (e) {
+        if (offset === 0) continue;
+        continue;
+      }
+      if (!zt || !Array.isArray(zt.pool) || !zt.pool.length) continue;
+      const poolDay = String(zt.qdate || queryDay);
+      if (poolDay === today) {
+        let previous = null;
+        try {
+          previous = await poolOf(API.yzt, poolDay, 400, 'zdp:desc');
+        } catch (_) {}
+        if (previous && Array.isArray(previous.pool) && previous.pool.length) {
+          return { day: poolDay, rows: previous.pool, poolType: 'today-yesterday' };
+        }
+        continue;
+      }
+      if (poolDay > today) continue;
+      return { day: poolDay, rows: zt.pool, poolType: 'previous-limit-up' };
+    }
+    throw new Error('最近交易日涨停池未取得');
+  }
+
+  function parseQuote(code, raw) {
+    const p = String(raw || '').split('~');
+    const last = Number(p[3]), prev = Number(p[4]);
+    if (!(last > 0) || !(prev > 0)) return null;
+    const combo = String(p[35] || '').split('/');
+    let volume = Number(combo[1] || p[6]) || 0;
+    const amount = Number(combo[2] || p[37]) || 0;
+    let shareUnit = 100;
+    if (amount > 0 && last > 0 && volume > 0) shareUnit = (amount / last / volume) < 10 ? 1 : 100;
+    volume *= shareUnit;
+    return {
+      code, name: p[1] || code, price: last, prevClose: prev,
+      open: Number(p[5]), high: Number(p[33]), low: Number(p[34]),
+      pct: Number(p[32]), amount, volume, time: String(p[30] || '')
+    };
+  }
+
+  async function quotes(codes) {
+    const list = [...new Set(codes.filter(Boolean))];
+    const out = {};
+    for (let start = 0; start < list.length; start += 40) {
+      const chunk = list.slice(start, start + 40);
+      chunk.forEach((c) => { window['v_' + c] = undefined; });
+      await loadScript(API.quote + chunk.join(',') + '&_=' + Date.now(), 'GBK');
+      chunk.forEach((c) => {
+        const raw = window['v_' + c];
+        if (typeof raw === 'string' && raw.length > 6) {
+          const q = parseQuote(c, raw);
+          if (q) out[c] = q;
+        }
+      });
+    }
+    if (!Object.keys(out).length) throw new Error('竞价行情没有返回');
+    return out;
+  }
+
+  function quoteCoverage(qs, codes) {
+    const required = [...new Set(codes.filter(Boolean))];
+    const complete = required.filter((code) => {
+      const q = qs[code];
+      const m = /^(\d{8})(\d{2})(\d{2})(\d{2})$/.exec(String(q?.time || ''));
+      const sec = m ? Number(m[2]) * 3600 + Number(m[3]) * 60 + Number(m[4]) : 0;
+      return q && m && m[1] === ymdOffset(0) && sec >= 33902 &&
+        q.prevClose > 0 && q.open > 0 && q.volume > 0 && q.amount > 0;
+    }).length;
+    return required.length ? complete / required.length : 0;
+  }
+
+  function gapOf(q) {
+    if (!q || !(q.prevClose > 0)) return NaN;
+    const px = q.open > 0 ? q.open : q.price;
+    return px > 0 ? (px / q.prevClose - 1) * 100 : NaN;
+  }
+
+  function exactAuctionQuote(q) {
+    const m = /^(\d{8})(\d{2})(\d{2})(\d{2})$/.exec(String(q?.time || ''));
+    if (!m || m[1] !== ymdOffset(0)) return false;
+    const sec = Number(m[2]) * 3600 + Number(m[3]) * 60 + Number(m[4]);
+    return sec >= 33902 && sec <= 33960;
+  }
+
+  function displayDay(day) {
+    const s = String(day || '');
+    return s.length === 8 ? `${s.slice(0, 4)}-${s.slice(4, 6)}-${s.slice(6)}` : '--';
+  }
+
+  function compactSelection(day, picks, meta = {}) {
+    if (!Array.isArray(picks) || !picks.length) return null;
+    return {
+      day: String(day || ''),
+      lockedAt: meta.lockedAt || '',
+      target: meta.target || '9:30–9:45',
+      picks: picks.filter((p) => p && p.code).map((p, i) => {
+        const height = Math.max(1, Number(p.height || p.auctionHeight || p.ylbc || p.lbc) || 1);
+        const score = Number(p.total ?? p.finalScore);
+        return {
+          code: String(p.code),
+          name: String(p.name || p.n || p.code),
+          sector: String(p.sector || p.hybk || '其他'),
+          height,
+          rank: i + 1,
+          total: Number.isFinite(score) ? score : NaN,
+          price: Number(p.price ?? p.lastPrice),
+          gap: Number(p.gap),
+          firstTime: Number(p.firstTime),
+          stage: p.stage || stage(height),
+          position: p.position || p.positionPct || '—'
+        };
+      })
+    };
+  }
+
+  function loadSelectionHistory() {
+    try {
+      const stored = JSON.parse(localStorage.getItem(HISTORY_KEY) || '{}');
+      return Object.values(stored).filter((x) => x && x.day && Array.isArray(x.picks) && x.picks.length);
+    } catch (_) { return []; }
+  }
+
+  function saveSelectionHistory(day, picks, meta = {}) {
+    const selection = compactSelection(day, picks, meta);
+    if (!selection) return;
+    try {
+      const stored = JSON.parse(localStorage.getItem(HISTORY_KEY) || '{}');
+      stored[selection.day] = selection;
+      const keep = Object.values(stored)
+        .filter((x) => x && x.day && Array.isArray(x.picks) && x.picks.length)
+        .sort((a, b) => String(b.day).localeCompare(String(a.day)))
+        .slice(0, 12);
+      localStorage.setItem(HISTORY_KEY, JSON.stringify(Object.fromEntries(keep.map((x) => [x.day, x]))));
+    } catch (_) {}
+  }
+
+  function selectionFromRecord(rec) {
+    if (!rec || !Array.isArray(rec.picks) || !rec.picks.length) return null;
+    return compactSelection(rec.day, rec.picks, {
+      lockedAt: rec.lockedAt || rec.snapshotLockedAt || '',
+      target: rec.auctionDataMode || ''
+    });
+  }
+
+  function resolvePreviousSelection() {
+    const today = ymdOffset(0);
+    const archiveByDay = {};
+    const historyByDay = {};
+    const legacyByDay = {};
+    state.archiveRecords.forEach((rec) => {
+      const day = String(rec && rec.day || '');
+      if (day && day < today) archiveByDay[day] = selectionFromRecord(rec);
+    });
+    Object.keys(LEGACY_SELECTIONS).forEach((day) => {
+      if (day < today) legacyByDay[day] = compactSelection(day, LEGACY_SELECTIONS[day], { lockedAt: '历史归档' });
+    });
+    loadSelectionHistory().forEach((selection) => {
+      if (selection.day < today) historyByDay[selection.day] = selection;
+    });
+    const latestDay = [...new Set([
+      ...Object.keys(archiveByDay),
+      ...Object.keys(historyByDay),
+      ...Object.keys(legacyByDay)
+    ])].sort().at(-1);
+    if (!latestDay) return null;
+    const selection = historyByDay[latestDay] || archiveByDay[latestDay] || legacyByDay[latestDay] || null;
+    return selection
+      ? JSON.parse(JSON.stringify(selection))
+      : { day: latestDay, picks: [], lockedAt: '' };
+  }
+
+  function trackingAdvice(q) {
+    if (!q || !String(q.time || '').startsWith(ymdOffset(0))) {
+      return { label: '等待竞价', tone: 'wait', text: '今日09:25竞价数据尚未生成，暂不改变昨日持仓计划。' };
+    }
+    const gap = gapOf(q);
+    if (!Number.isFinite(gap)) {
+      return { label: '数据不足', tone: 'wait', text: '竞价开盘字段不完整，先按开盘价和成本价人工确认。' };
+    }
+    if (gap > 1.5) {
+      return { label: '高开止盈', tone: 'exit', text: `竞价 ${sign(gap)}%：冲高分批兑现，不贪涨停；跌破开盘价或分时均价时清掉剩余仓位。` };
+    }
+    if (gap >= -.5) {
+      return { label: '观察承接', tone: 'watch', text: `竞价 ${sign(gap)}%：9:30–9:45不能翻红并站稳分时均价就退出，不补仓。` };
+    }
+    if (gap >= -2) {
+      return { label: '弱势减仓', tone: 'watch', text: `竞价 ${sign(gap)}%：禁止补仓；9:45前不能回封并站上分时均价就减仓或清仓。` };
+    }
+    return { label: '开盘止损', tone: 'exit', text: `竞价 ${sign(gap)}%：低开超过-2%，开盘优先止损，不补仓、不扛单。` };
+  }
+
+  function renderPreviousSelection() {
+    const previous = state.previous;
+    const box = $('previousPicks');
+    if (!box) return;
+    if (!previous) {
+      $('previousDay').textContent = '暂无';
+      $('previousHint').textContent = '暂无可读取的上一交易日优选；今日定稿后会自动保留。';
+      box.innerHTML = '<div class="empty-state">暂无上一交易日优选记录。</div>';
+      return;
+    }
+    $('previousDay').textContent = displayDay(previous.day);
+    if (!previous.picks.length) {
+      $('previousHint').textContent = '上一交易日没有合格标的；不会沿用更早日期名单。';
+      box.innerHTML = '<div class="empty-state">上一交易日无合格标的，今日无可跟踪持仓。</div>';
+      return;
+    }
+    $('previousHint').textContent = previous.quoteClock
+      ? `已更新今日 ${previous.quoteClock} 竞价；以下为昨日持仓处理，实际成本请以成交价为准。`
+      : (bjNow().getDay() === 0 || bjNow().getDay() === 6
+        ? '周末休市；下一交易日09:25后自动更新竞价和持仓处理。'
+        : '等待今日09:25竞价；到点后自动更新高开、平开、低开的卖出处理。');
+    box.innerHTML = previous.picks.map((p) => {
+      const plan = trackingAdvice(p.trackQuote);
+      return `
+        <article class="pick-card track-card">
+          <div class="pick-top">
+            <div><span class="pick-rank">PREVIOUS RANK ${p.rank || 1}</span><h3>${esc(p.name)}</h3><small>${esc(p.code.slice(2))} · ${esc(p.sector)}</small></div>
+            <span class="track-badge ${plan.tone}">${esc(plan.label)}</span>
+          </div>
+          <div class="pick-meta"><span>${esc(p.stage || stage(p.height))}</span><span>${p.height}板</span><span>${esc(p.position || '—')}</span></div>
+          <div class="track-price">
+            <div><small>昨日参考价</small><b>${price(p.price)}</b></div>
+            <div><small>今日竞价</small><b>${p.trackQuote ? sign(gapOf(p.trackQuote)) + '%' : '--'}</b></div>
+            <div><small>昨日最终分</small><b>${fmt(p.total, 1)}</b></div>
+          </div>
+          <div class="track-plan"><b>今日处理：</b>${esc(plan.text)}</div>
+        </article>`;
+    }).join('');
+  }
+
+  async function refreshPreviousQuotes(force = false) {
+    if (!state.previous || !state.previous.picks.length) return;
+    const now = bjNow();
+    const day = now.getDay();
+    const sec = now.getHours() * 3600 + now.getMinutes() * 60 + now.getSeconds();
+    if (day < 1 || day > 5 || sec < 33902) return;
+    if (!force && Date.now() - state.previousQuoteAt < 30000) return;
+    state.previousQuoteAt = Date.now();
+    try {
+      const qs = await quotes(state.previous.picks.map((p) => p.code));
+      state.previous.picks.forEach((p) => {
+        const q = qs[p.code];
+        p.trackQuote = q && String(q.time || '').startsWith(ymdOffset(0)) ? q : null;
+      });
+      const stamp = state.previous.picks.map((p) => p.trackQuote?.time || '').filter(Boolean).sort().at(-1);
+      state.previous.quoteClock = stamp ? `${stamp.slice(8, 10)}:${stamp.slice(10, 12)}` : '';
+      renderPreviousSelection();
+    } catch (_) {
+      renderPreviousSelection();
+    }
+  }
+
+  function scoreA(gap) {
+    if (!Number.isFinite(gap) || gap < -2.5 || gap > 6.5) return 0;
+    if (gap < 0) return 4 * (gap + 2.5) / 2.5;
+    if (gap < 2) return 4 + (gap / 2) * 6;
+    if (gap < 3) return 14 + (gap - 2) * 2;
+    if (gap < 4) return 16 - (gap - 3) * 4;
+    if (gap < 5) return 12 - (gap - 4) * 4;
+    return 8 - (gap - 5) * 2.67;
+  }
+  function scoreB(volumeRatio, amountRatio) {
+    const vr = Number(volumeRatio), ar = Number(amountRatio);
+    const ratio = vr >= 5 ? 10 : vr >= 3 ? 6 : vr >= 2 ? 3 : 0;
+    const amount = ar > 20 ? -6 : ar >= 10 ? 1 : ar >= 5 ? 4 : ar >= 3 ? 2 : 0;
+    return clamp(ratio + amount, 0, 14);
+  }
+  function scoreC(height, marketHeight) {
+    const h = Math.max(1, Number(height) || 1);
+    let v = h === 1 ? 4 : h === 2 ? 10 : h === 3 ? 8 : h === 4 ? 6 : 2;
+    if (marketHeight <= 4) v *= .6;
+    else if (marketHeight >= 6) v *= h <= 2 ? 1.2 : .9;
+    return clamp(v, 0, 12);
+  }
+  function scoreD(t) {
+    if (!Number.isFinite(t) || t <= 0) return 0;
+    if (t <= 100000) return 6;
+    if (t <= 130000) return 3;
+    return 1;
+  }
+  function scoreE(breaks) {
+    const b = Math.max(0, Number(breaks) || 0);
+    return b === 0 ? 4 : b === 1 ? 2 : b === 2 ? 0 : -5;
+  }
+
+  function cycleOf(topGap, marketHeight, highOpen) {
+    if (!Number.isFinite(topGap) || topGap < -3 || highOpen < .35) return { label: '退潮期', note: '空仓或极轻仓，不打高位板' };
+    if (marketHeight <= 2) return { label: '冰点期', note: '只允许主线1进2极小仓试错' };
+    if (marketHeight >= 5 && topGap >= 2) return { label: '高潮期', note: '只持筹、少新开，不接一致加速' };
+    if (marketHeight >= 4 && topGap >= 0 && highOpen >= .5) return { label: '发酵期', note: '主线完整时以3进4为核心' };
+    if (topGap < 0 || highOpen < .5) return { label: '分歧期', note: '只做弱转强或分歧回封' };
+    return { label: '启动期', note: '优先板块前三辨识度' };
+  }
+
+  function positionOf(c, cycle) {
+    const h = Number(c.height) || 1;
+    if (cycle === '退潮期') return h >= 2 ? '0%–5%' : '≤5%';
+    if (cycle === '冰点期') return h >= 4 ? '不参与' : h <= 2 ? '≤5%' : '5%–10%';
+    if (cycle === '高潮期') return h >= 4 ? '≤5%或不参与' : '5%–10%';
+    if (cycle === '发酵期') return h >= 4 ? '≤10%' : h === 3 ? '20%–30%' : h === 2 ? '10%–15%' : '5%–10%';
+    return h >= 4 ? '0%–5%' : h === 3 ? '10%–20%' : '5%–10%';
+  }
+
+  async function auctionBaseline(code, quote) {
+    const secid = code.startsWith('sh') ? `1.${code.slice(2)}` : `0.${code.slice(2)}`;
+    const url = `${API.baseline}?secid=${secid}` +
+      '&fields1=f1,f2,f3,f4,f5,f6,f7,f8,f9,f10,f11,f12,f13' +
+      `&fields2=f51,f52,f53,f54,f55,f56,f57,f58&iscr=0&ndays=5&ut=${EM_FLOW_UT}`;
+    let json = null;
+    try {
+      const res = await fetch(url + '&_=' + Date.now(), { cache: 'no-store' });
+      if (res.ok) json = await res.json();
+    } catch (_) {}
+    if (!json) {
+      try { json = await jsonpCallback(url, null, 10000); } catch (_) { return { ratio: NaN, days: 0 }; }
+    }
+    const rows = Array.isArray(json?.data?.trends) ? json.data.trends : [];
+    const byDay = {};
+    rows.forEach((raw) => {
+      const p = String(raw || '').split(',');
+      const day = String(p[0] || '').slice(0, 10).replaceAll('-', '');
+      const time = String(p[0] || '').slice(11, 16);
+      if (day.length === 8 && time === '09:25') byDay[day] = { volume: Number(p[5]) || 0, amount: Number(p[6]) || 0 };
+    });
+    const today = byDay[ymdOffset(0)] || null;
+    const qm = /^(\d{8})(\d{2})(\d{2})(\d{2})$/.exec(String(quote?.time || ''));
+    const exactAuction = qm && qm[1] === ymdOffset(0) &&
+      Number(qm[2]) * 3600 + Number(qm[3]) * 60 + Number(qm[4]) >= 33902 &&
+      Number(qm[2]) * 3600 + Number(qm[3]) * 60 + Number(qm[4]) <= 33960;
+    const currentVolume = today?.volume > 0 ? today.volume : exactAuction ? Number(quote.volume) : NaN;
+    const currentAmount = today?.amount > 0 ? today.amount : exactAuction ? Number(quote.amount) : NaN;
+    const hist = Object.keys(byDay).filter((day) => day < ymdOffset(0)).sort().slice(-5).map((day) => byDay[day]);
+    if (hist.length < 3) return {
+      ratio: NaN, days: hist.length,
+      currentVolume, currentAmount
+    };
+    const histVolume = mean(hist.map((x) => x.volume).filter((v) => v > 0));
+    return {
+      ratio: histVolume > 0 && currentVolume > 0 ? currentVolume / histVolume : NaN,
+      days: hist.length, currentVolume, currentAmount
+    };
+  }
+
+  function baselineFromSnapshot(snapshot, code, quote) {
+    const row = snapshot && snapshot.baselines && snapshot.baselines[code];
+    if (!row) return null;
+    const history = Array.isArray(row.history) ? row.history.filter((x) => Number(x && x.volume) > 0) : [];
+    const exactQuote = exactAuctionQuote(quote);
+    const currentVolume = Number(row.currentVolume) > 0 ? Number(row.currentVolume) : exactQuote ? Number(quote.volume) || NaN : NaN;
+    const currentAmount = Number(row.currentAmount) > 0 ? Number(row.currentAmount) : exactQuote ? Number(quote.amount) || NaN : NaN;
+    const histVolume = mean(history.map((x) => Number(x.volume)).filter((v) => v > 0));
+    return {
+      ratio: history.length >= 3 && histVolume > 0 && currentVolume > 0 ? currentVolume / histVolume : NaN,
+      days: history.length,
+      currentVolume,
+      currentAmount
+    };
+  }
+
+  async function buildModel(pool, qs, snapshot) {
+    const rawRows = pool.rows.map((x) => ({ ...x, code: ztCode(x) })).filter((x) => x.code);
+    const maxHeight = rawRows.reduce((m, x) => Math.max(m, Number(x.ylbc || x.lbc) || 1), 0);
+    const rep = rawRows.slice().sort((a, b) =>
+      (Number(b.ylbc || b.lbc) || 1) - (Number(a.ylbc || a.lbc) || 1) ||
+      (firstTime(a) || Infinity) - (firstTime(b) || Infinity) ||
+      (Number(b.amount) || 0) - (Number(a.amount) || 0)
+    )[0];
+    const repGap = rep ? gapOf(qs[rep.code]) : NaN;
+    if (!Number.isFinite(repGap)) throw new Error('最高标竞价字段缺失');
+    const selected = rawRows.slice().sort((a, b) =>
+      (firstTime(a) || Infinity) - (firstTime(b) || Infinity) ||
+      (Number(b.amount) || 0) - (Number(a.amount) || 0) ||
+      (Number(b.ylbc || b.lbc) || 1) - (Number(a.ylbc || a.lbc) || 1)
+    ).slice(0, 120);
+
+    const all = selected.map((x) => {
+      const code = x.code, q = qs[code];
+      const auctionQ = exactAuctionQuote(q);
+      const h = Math.max(1, Number(x.ylbc || x.lbc) || 1);
+      const ydayAmount = Number(x.amount) || NaN;
+      return {
+        code, name: x.n || code, sector: String(x.hybk || '其他'), height: h,
+        firstTime: firstTime(x), breaks: Math.max(0, Number(x.zbc) || 0),
+        gap: gapOf(q), price: q?.open > 0 ? q.open : q?.price, last: q?.price,
+        auctionVolume: auctionQ ? Number(q?.volume) || NaN : NaN,
+        auctionAmount: auctionQ ? Number(q?.amount) || NaN : NaN,
+        ydayAmount, amountRatio: NaN, sectorCount: 0, sectorRank: 0,
+        sectorHigher: false, sectorLeaderGap: NaN, downgraded: boardDowngraded(code),
+        volRatio: NaN, ratioMode: '成交额占昨额代理', baselineDays: 0,
+        scoreA: 0, scoreB: 0, scoreC: 0, scoreD: 0, scoreE: 0, scoreF: 0,
+        total: NaN, filtered: '', watchOnly: false
+      };
+    });
+
+    const groups = {};
+    all.forEach((c) => (groups[c.sector] = groups[c.sector] || []).push(c));
+    Object.values(groups).forEach((list) => {
+      list.sort((a, b) => b.height - a.height || (a.firstTime || Infinity) - (b.firstTime || Infinity) || (b.ydayAmount || 0) - (a.ydayAmount || 0));
+      list.forEach((c, i) => {
+        c.sectorCount = list.length;
+        c.sectorRank = i + 1;
+        c.sectorHigher = list[0].height > c.height && list[0].code !== c.code;
+        c.sectorLeaderGap = list[0].gap;
+      });
+    });
+
+    const finiteGaps = all.filter((c) => Number.isFinite(c.gap));
+    const highOpen = finiteGaps.length ? finiteGaps.filter((c) => c.gap > 0).length / finiteGaps.length : NaN;
+    const cycle = cycleOf(repGap, maxHeight, highOpen);
+
+    all.forEach((c) => {
+      if (/ST|退/i.test(c.name)) c.filtered = 'ST或退市风险';
+      else if (!Number.isFinite(c.gap)) c.filtered = '竞价行情缺失';
+      else if (!Number.isFinite(c.ydayAmount)) c.filtered = '昨日成交额缺失';
+      else if (c.gap < -2.5) c.filtered = '低开超过-2.5%';
+      else if (c.gap > 6.5) c.filtered = '高开超过6.5%';
+      else if (c.code === rep.code && repGap < -3) c.filtered = '最高标竞价低于-3%';
+      else if (!Number.isFinite(c.firstTime)) c.filtered = '昨日封板时间缺失';
+      else if (c.firstTime > 143000) c.filtered = '昨日14:30后封板';
+      else if (c.firstTime > 133000 && c.gap < -1) c.filtered = '13:30后封板且竞价低于-1%';
+      else if (c.sectorCount < 2) c.filtered = '孤立涨停，无板块联动';
+      else if (c.sectorRank > 3) c.filtered = '板块辨识度未进前三';
+      else if (c.height === 1 && c.firstTime > 100000) c.filtered = '1进2非早盘强势板';
+      else if (cycle.label === '退潮期' && c.height >= 2) c.filtered = '退潮期不打高位板';
+      else if (cycle.label === '冰点期' && c.height >= 4) c.filtered = '冰点期不参与高位板';
+      else if (cycle.label === '高潮期' && c.height >= 3 && c.gap > 5) c.filtered = '高潮期不接一致加速';
+    });
+
+    const scorePool = all.filter((c) => !c.filtered);
+    for (let start = 0; start < scorePool.length; start += 6) {
+      await Promise.all(scorePool.slice(start, start + 6).map(async (c) => {
+        const b = snapshot
+          ? (baselineFromSnapshot(snapshot, c.code, qs[c.code]) || {
+              ratio: NaN, days: 0,
+              currentVolume: exactAuctionQuote(qs[c.code]) ? Number(qs[c.code] && qs[c.code].volume) || NaN : NaN,
+              currentAmount: exactAuctionQuote(qs[c.code]) ? Number(qs[c.code] && qs[c.code].amount) || NaN : NaN
+            })
+          : await auctionBaseline(c.code, qs[c.code]);
+        c.baselineDays = b.days;
+        if (b.currentVolume > 0) c.auctionVolume = b.currentVolume;
+        if (b.currentAmount > 0) c.auctionAmount = b.currentAmount;
+        if (c.ydayAmount > 0 && c.auctionAmount > 0) c.amountRatio = c.auctionAmount / c.ydayAmount * 100;
+        if (Number.isFinite(b.ratio)) {
+          c.volRatio = b.ratio;
+          c.ratioMode = `5日竞价量比(${b.days}/5)`;
+        } else {
+          c.volRatio = c.amountRatio;
+          c.ratioMode = '成交额占昨额代理';
+        }
+      }));
+    }
+
+    scorePool.forEach((c) => {
+      const volumeReady = Number.isFinite(c.auctionVolume) && Number.isFinite(c.auctionAmount);
+      if (!volumeReady) {
+        c.volRatio = 0;
+        c.ratioMode = '量能数据缺失（B项保守记0分）';
+      }
+      if (c.breaks < 3) return;
+      if (c.ratioMode.startsWith('5日竞价量比') && c.volRatio >= 8 && c.amountRatio >= 10) {
+        c.watchOnly = true;
+      } else if (!volumeReady) {
+        c.filtered = `昨日开板${c.breaks}次，且量能数据缺失，无法确认承接`;
+      } else {
+        c.filtered = `昨日开板${c.breaks}次，未满足量能豁免`;
+      }
+    });
+
+    let env = { threshold: 58, multiplier: 1, maxPicks: 2 };
+    if (repGap < -3) env = { threshold: 63, multiplier: .85, maxPicks: 1 };
+    else if (repGap < -1) env = { threshold: 60, multiplier: .95, maxPicks: 2 };
+    if (cycle.label === '退潮期') {
+      env.threshold = Math.max(env.threshold, 63);
+      env.maxPicks = 1;
+    } else if (['冰点期', '高潮期', '分歧期'].includes(cycle.label)) env.maxPicks = 1;
+
+    scorePool.filter((c) => !c.filtered && !c.watchOnly).forEach((c) => {
+      const a = scoreA(c.gap);
+      const b = scoreB(c.volRatio, c.amountRatio);
+      const cc = scoreC(c.height, maxHeight);
+      const d = scoreD(c.firstTime);
+      const e = scoreE(c.breaks);
+      let f = c.sectorCount >= 3 ? 6 : c.sectorCount === 2 ? 4 : 0;
+      if (c.sectorHigher && Number.isFinite(c.sectorLeaderGap) && Number.isFinite(c.gap)) {
+        if (c.sectorLeaderGap > c.gap + 2) f -= 6;
+        else if (c.sectorLeaderGap < c.gap - 1) f += 2;
+      }
+      f = clamp(f, -8, 6);
+      c.scoreA = a; c.scoreB = b; c.scoreC = cc; c.scoreD = d; c.scoreE = e; c.scoreF = f;
+      c.total = Math.round((48 + a + b + cc + d + e + f) * env.multiplier * 10) / 10;
+      if (c.total < env.threshold) c.filtered = `低于动态门槛${env.threshold}分`;
+    });
+
+    const ranked = all.filter((c) => !c.filtered && !c.watchOnly && Number.isFinite(c.total))
+      .sort((a, b) => b.total - a.total || b.gap - a.gap || a.code.localeCompare(b.code));
+    const picks = ranked.filter((c) => !c.downgraded).slice(0, env.maxPicks).map((c, i) => ({
+      ...c, rank: i + 1, stage: stage(c.height), position: positionOf(c, cycle.label)
+    }));
+    const rankMap = Object.fromEntries(picks.map((p) => [p.code, p.rank]));
+    all.forEach((c) => { c.rank = rankMap[c.code] || 0; });
+    return {
+      day: pool.day, all, ranked, picks, maxHeight, rep, repGap, highOpen, cycle,
+      threshold: env.threshold, maxPicks: env.maxPicks, lockedAt: clockText(),
+      snapshot: '09:25', poolMode: pool.poolType,
+      snapshotId: snapshot ? snapshot.snapshotId : '',
+      selectionSource: snapshot ? 'independent-snapshot' : 'independent-live'
+    };
+  }
+
+  function render() {
+    const d = state.data;
+    if (!d) return;
+    $('dateLine').textContent = dateText();
+    $('phaseTag').textContent = '竞价已锁定';
+    $('verdict').textContent = d.picks.length ? `今日优选 ${d.picks.length} 只` : '今日无合格标的';
+    $('verdictSub').textContent = d.snapshotId
+      ? '共享原始快照已读取；本页独立执行过滤、评分和排名。'
+      : (d.picks.length ? '09:25 快照已锁定，后续刷新不改评分和排名。' : '按纪律保持空仓，不降低标准补票。');
+    $('topScore').textContent = d.picks.length ? fmt(d.picks[0].total, 1) : '--';
+    $('cycleText').textContent = d.cycle.label;
+    $('cycleNote').textContent = d.cycle.note;
+    $('topGap').textContent = sign(d.repGap) + '%';
+    $('topName').textContent = (d.rep.name || d.rep.n || d.rep.code || '--') + ' · ' + String(d.rep.code || '').slice(2);
+    $('threshold').textContent = d.threshold + '分';
+    $('pickLimit').textContent = '最多优选' + (['退潮期', '冰点期', '分歧期', '高潮期'].includes(d.cycle.label) ? '1' : '2') + '只';
+    $('lockTime').textContent = d.lockedAt;
+    $('snapshotTime').textContent = '快照 ' + d.snapshot;
+    $('pickCount').textContent = d.picks.length + '只';
+    $('candidateCount').textContent = d.ranked.length + '只达标 · ' + d.all.filter((c) => c.filtered).length + '只淘汰';
+    $('footStatus').textContent = '定稿日 ' + d.day + ' · ' + d.all.length + '只候选 · ' + (d.snapshotId ? '独立评分' : '实时计算') + ' · 已锁定';
+    $('selectBtn').textContent = '已选定';
+    $('selectBtn').disabled = true;
+    $('actionHint').textContent = d.snapshotId ? '共享原始快照 · 本页独立评分' : '今日结果已固定';
+
+    $('picks').innerHTML = d.picks.length ? d.picks.map((c, i) => `
+      <article class="pick-card">
+        <div class="pick-top">
+          <div><span class="pick-rank">RANK ${i + 1}</span><h3>${esc(c.name)}</h3><small>${esc(c.code.slice(2))} · ${esc(c.sector)}</small></div>
+          <strong class="pick-score">${fmt(c.total, 1)}</strong>
+        </div>
+        <div class="pick-meta"><span>${esc(c.stage)}</span><span>${c.height}板</span><span>${esc(c.position)}</span></div>
+        <div class="pick-body">
+          <div><small>竞价参考</small><b>${price(c.price)}</b></div>
+          <div><small>竞价涨幅</small><b>${sign(c.gap)}%</b></div>
+          <div><small>首封时间</small><b>${timeText(c.firstTime)}</b></div>
+        </div>
+        <p class="pick-note"><b>执行参考：</b>09:30后同时站上开盘价和分时均价，回踩不破且板块仍强再分批；不追无量脉冲。</p>
+        <div class="pick-rule"><b>${esc(c.stage)}：</b>${esc(stageNote(c.stage))}，仓位上限 ${esc(c.position)}。</div>
+      </article>`).join('') : '<div class="empty-state">今日没有股票通过情绪、板块、盘口和评分门槛。</div>';
+
+    const list = d.ranked.slice(0, 20);
+    $('candidateBody').innerHTML = list.length ? list.map((c, i) => `
+      <tr>
+        <td>${c.downgraded ? '降级' : i + 1}</td>
+        <td><b>${esc(c.name)}</b><small>${esc(c.code.slice(2))}</small></td>
+        <td>${esc(c.sector)}<small>${esc(stage(c.height))} · 板块第${c.sectorRank}</small></td>
+        <td>${sign(c.gap)}%</td>
+        <td><b>${fmt(c.total, 1)}</b></td>
+        <td>${c.rank ? '优选' + c.rank : c.downgraded ? '创/科降级' : '达标观察'}</td>
+      </tr>`).join('') : '<tr><td colspan="6" class="empty">没有达到门槛的股票</td></tr>';
+  }
+
+  function stageNote(s) {
+    if (s === '1进2') return '主线内早盘强势板，极小仓试错';
+    if (s === '2进3') return '看板块助攻和弱转强，不盲目主做';
+    if (s === '3进4') return '高辨识度、主线支撑、分歧回封';
+    return '只做情绪加速段，轻仓快进快出';
+  }
+  function timeText(t) {
+    const n = Number(t);
+    if (!Number.isFinite(n)) return '--';
+    return `${pad(Math.floor(n / 10000))}:${pad(Math.floor(n / 100) % 100)}:${pad(n % 100)}`;
+  }
+
+  function setLoading(on, text) {
+    state.loading = on;
+    document.body.classList.toggle('loading', on);
+    if (on) {
+      $('selectBtn').disabled = true;
+      $('selectBtn').textContent = '筛选中…';
+      $('actionHint').textContent = text || '读取竞价与涨停梯队…';
+      $('verdict').textContent = '正在筛选';
+      $('verdictSub').textContent = '09:25快照完成后自动锁定，失败会继续重试。';
+    }
+  }
+
+  function saveLock(data) {
+    try {
+      localStorage.setItem(LOCK_KEY, JSON.stringify({ version: VERSION, day: ymdOffset(0), data }));
+      saveSelectionHistory(ymdOffset(0), data?.picks || [], { lockedAt: data?.lockedAt || '' });
+    } catch (_) {}
+  }
+  function loadLock() {
+    try {
+      const x = JSON.parse(localStorage.getItem(LOCK_KEY) || 'null');
+      return x && x.version === VERSION && x.day === ymdOffset(0) && x.data ? x.data : null;
+    } catch (_) { return null; }
+  }
+
+  async function loadArchiveRecords(timeout = 12000) {
+    try {
+      await loadScript(API.archive + '?v=' + Date.now(), 'UTF-8', timeout);
+    } catch (_) {
+      return state.archiveRecords;
+    }
+    const payload = window.AUCTION_DAILY_ARCHIVE;
+    state.archiveRecords = payload && Array.isArray(payload.records) ? payload.records : [];
+    state.archiveRecords.forEach((rec) => {
+      const selection = selectionFromRecord(rec);
+      if (selection) saveSelectionHistory(selection.day, selection.picks, { lockedAt: selection.lockedAt });
+    });
+    return state.archiveRecords;
+  }
+
+  function currentArchiveRecord(records) {
+    const rec = (records || []).find((x) => String(x.day) === ymdOffset(0));
+    if (!rec || rec.recordType !== 'live' || rec.actionable !== true || !rec.rawSnapshot ||
+        rec.rawSnapshot.snapshotVersion !== SNAPSHOT_VERSION ||
+        !Array.isArray(rec.rawSnapshot.pool) || !rec.rawSnapshot.quotes || !rec.rawSnapshot.baselines) return null;
+    return rec;
+  }
+
+  async function archiveRecordFallback(timeout = 12000) {
+    return currentArchiveRecord(await loadArchiveRecords(timeout));
+  }
+
+  async function modelFromArchive(rec) {
+    const snapshot = rec && rec.rawSnapshot;
+    if (!snapshot) return null;
+    return buildModel(
+      { day: snapshot.poolDay || snapshot.day, rows: snapshot.pool, poolType: snapshot.poolType || 'snapshot' },
+      snapshot.quotes,
+      snapshot
+    );
+  }
+
+  async function runSelection(manual) {
+    if (state.loading) return;
+    const now = bjNow();
+    const day = now.getDay();
+    const sec = now.getHours() * 3600 + now.getMinutes() * 60 + now.getSeconds();
+    if (day < 1 || day > 5) {
+      if (manual) toast('周末休市，不生成竞价优选');
+      return;
+    }
+    if (sec < 33902) {
+      if (manual) toast('09:25:02后才开始正式筛选');
+      return;
+    }
+    setLoading(true);
+    try {
+      let data = null;
+      try {
+        const rec = await archiveRecordFallback();
+        data = rec ? await modelFromArchive(rec) : null;
+        if (!data) {
+          const pool = await candidatePool();
+          const codes = pool.rows.map((x) => ztCode(x));
+          const qs = await quotes(codes);
+          const coverage = quoteCoverage(qs, codes);
+          if (coverage < .95) throw new Error(`竞价字段覆盖 ${(coverage * 100).toFixed(1)}%，未达到95%`);
+          data = await buildModel(pool, qs);
+        }
+      } catch (liveError) {
+        const rec = await archiveRecordFallback();
+        data = rec ? await modelFromArchive(rec) : null;
+        if (!data) throw liveError;
+      }
+      state.data = data;
+      state.locked = true;
+      state.retryAt = 0;
+      saveLock(data);
+      render();
+    } catch (e) {
+      $('phaseTag').textContent = '等待重试';
+      $('verdict').textContent = '本轮未生成优选';
+      $('verdictSub').textContent = '数据源暂不可用：' + e.message;
+      $('selectBtn').disabled = false;
+      $('selectBtn').textContent = '重新筛选';
+      $('actionHint').textContent = '系统将继续自动重试';
+      $('footStatus').textContent = '本轮失败 · 不生成残缺榜单';
+      state.retryAt = Date.now() + 15000;
+    } finally {
+      state.loading = false;
+      document.body.classList.remove('loading');
+    }
+  }
+
+  async function syncSharedCanonical() {
+    if (state.sharedLoading || (state.data && state.data.snapshotId)) return;
+    state.sharedLoading = true;
+    state.sharedCheckAt = Date.now() + 60000;
+    try {
+      const rec = await archiveRecordFallback();
+      const shared = rec ? await modelFromArchive(rec) : null;
+      if (!shared) return;
+      state.data = shared;
+      state.locked = true;
+      saveLock(shared);
+      render();
+    } finally {
+      state.sharedLoading = false;
+    }
+  }
+
+  function tick() {
+    const today = ymdOffset(0);
+    if (!state.activeDay) state.activeDay = today;
+    if (state.activeDay !== today) {
+      state.activeDay = today;
+      location.reload();
+      return;
+    }
+    $('clock').textContent = clockText();
+    const d = bjNow();
+    const day = d.getDay();
+    const sec = d.getHours() * 3600 + d.getMinutes() * 60 + d.getSeconds();
+    if (!state.locked && day >= 1 && day <= 5 && sec >= 33902 &&
+        !state.loading && Date.now() >= state.retryAt) {
+      runSelection(false);
+    }
+    if (state.locked && state.data && !state.data.snapshotId && Date.now() >= state.sharedCheckAt) {
+      syncSharedCanonical();
+    }
+    if (state.previous && day >= 1 && day <= 5 && sec >= 33902 &&
+        Date.now() - state.previousQuoteAt >= 30000) {
+      refreshPreviousQuotes(false);
+    }
+    if (!state.locked && (day < 1 || day > 5)) {
+      $('selectBtn').disabled = true;
+      $('selectBtn').textContent = '非交易日';
+      $('actionHint').textContent = '周末休市，下一交易日自动执行';
+    } else if (!state.locked && sec < 33902) {
+      $('selectBtn').disabled = true;
+      $('selectBtn').textContent = '等待09:25';
+    } else if (!state.locked && !state.loading) {
+      $('selectBtn').disabled = false;
+      $('selectBtn').textContent = '一键选股';
+    }
+  }
+
+  async function init() {
+    state.activeDay = ymdOffset(0);
+    state.booting = true;
+    state.previous = resolvePreviousSelection();
+    renderPreviousSelection();
+    $('dateLine').textContent = dateText();
+    $('selectBtn').disabled = true;
+    $('selectBtn').textContent = '同步快照…';
+    $('actionHint').textContent = '读取共享原始快照，本页独立评分';
+    $('selectBtn').addEventListener('click', () => runSelection(true));
+    $('refreshBtn').addEventListener('click', () => {
+      if (state.booting) {
+        toast('正在同步今日快照，请稍候');
+        return;
+      }
+      if (state.loading) {
+        toast('筛选进行中，请稍候');
+        return;
+      }
+      if (state.locked) {
+        toast('今日结果已锁定，不重新改榜');
+        return;
+      }
+      runSelection(true);
+    });
+    document.addEventListener('visibilitychange', () => {
+      if (!document.hidden && !state.locked && !state.loading) runSelection(false);
+    });
+    tick();
+    setInterval(tick, 1000);
+    try {
+      const records = await loadArchiveRecords(5000);
+      const rec = currentArchiveRecord(records);
+      const shared = rec ? await modelFromArchive(rec) : null;
+      const saved = shared || loadLock();
+      state.previous = resolvePreviousSelection();
+      renderPreviousSelection();
+      if (saved) {
+        state.data = saved;
+        state.locked = true;
+        render();
+        saveSelectionHistory(ymdOffset(0), saved.picks || [], { lockedAt: saved.lockedAt || '' });
+        if (!shared && !saved.snapshotId) setTimeout(() => syncSharedCanonical(), 2500);
+      } else {
+        $('selectBtn').disabled = true;
+        $('actionHint').textContent = '09:25后自动筛选';
+      }
+      refreshPreviousQuotes(true);
+    } finally {
+      state.booting = false;
+      tick();
+    }
+    if ('serviceWorker' in navigator && location.protocol === 'https:') {
+      navigator.serviceWorker.register('./sw.js').catch(() => {});
+    }
+  }
+
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
+  else init();
+})();
+
+</script>
+</body>
+</html>
