@@ -1,0 +1,50 @@
+name: Update auction daily archive
+
+on:
+  push:
+    paths:
+      - 'update-auction-daily.mjs'
+      - '.github/workflows/update-auction-daily.yml'
+  schedule:
+    - cron: '25 1 * * 1-5'
+    - cron: '28 1 * * 1-5'
+    - cron: '31 1 * * 1-5'
+    - cron: '36 1 * * 1-5'
+  workflow_dispatch:
+    inputs:
+      auction_date:
+        description: 'Optional Beijing date, YYYYMMDD'
+        required: false
+        type: string
+
+permissions:
+  contents: write
+
+concurrency:
+  group: auction-daily-archive
+  cancel-in-progress: false
+
+jobs:
+  archive:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Build shared archive
+        env:
+          AUCTION_DATE: ${{ inputs.auction_date }}
+        run: node update-auction-daily.mjs .
+      - name: Commit shared archive
+        run: |
+          if git diff --quiet -- auction-daily.json auction-daily.js; then
+            echo "Archive unchanged"
+            exit 0
+          fi
+          git config user.name "apanel-auction-bot"
+          git config user.email "apanel-auction-bot@users.noreply.github.com"
+          git add auction-daily.json auction-daily.js
+          git commit -m "chore: update auction archive $(TZ=Asia/Shanghai date +%F)"
+          git push
