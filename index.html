@@ -6,13 +6,13 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
 <meta http-equiv="Pragma" content="no-cache" />
 <meta http-equiv="Expires" content="0" />
-<meta name="apanel-build" content="2026-11-06-obsidian-frost-v2" />
+<meta name="apanel-build" content="2026-11-07-obsidian-frost-v3-early-auction-fix" />
 <!-- 手机（iOS）加到主屏幕后按“应用”方式全屏运行 -->
 <meta name="apple-mobile-web-app-capable" content="yes" />
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
 <meta name="apple-mobile-web-app-title" content="A股智研" />
 <meta name="mobile-web-app-capable" content="yes" />
-<meta name="app-version" content="20261106-obsidian-frost-v2" />
+<meta name="app-version" content="20261107-obsidian-frost-v3-early-auction-fix" />
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
 <meta http-equiv="Pragma" content="no-cache" />
 <meta http-equiv="Expires" content="0" />
@@ -13855,10 +13855,15 @@ function tradeMethodHtml(kind, price, position) {
   const buyText = isAuction
     ? '09:30 后同时站上开盘价和分时均价，首次回踩均价不破、板块仍强时再分两笔；不追无量高开，不接直线脉冲。'
     : '尾盘入选只代表具备候选资格，实盘仍需承接确认；优先等回踩分时均价不破后再执行，单票不超过总资金 30%。';
+  const noBuyText = isAuction
+    ? '竞价高开超过6.5%不追；09:30后放量跌破开盘价或分时均价、板块同步转弱、出现利空时不买。评分高不等于必须买。'
+    : '跌破计划支撑、放量破分时均价、板块转弱或出现利空时不买。';
   return '<div class="trade-plan">' +
     '<div class="trade-plan-title">交易执行卡 · 当日买入与次日处理</div>' +
-    '<div><b>当日买点：</b>' + buyText + '</div>' +
-    '<div><b>次日原则：</b>高开分批兑现；平开或小低开 30 分钟内不强就退出；低开超过 -2% 直接止损；只有站稳开盘价、分时均价且板块仍强时才允许继续持有。</div>' +
+    '<div><b>当日买入：</b>' + buyText + ' 首笔不超过计划仓位一半，承接确认后再补第二笔。</div>' +
+    '<div><b>不买条件：</b>' + noBuyText + '</div>' +
+    '<div><b>硬止损：</b>成本价 -3%（约 <span class="riskline">' + stop + '</span>）或有效跌破分时均价先退出；单笔最大亏损不超过总资金2%。</div>' +
+    '<div><b>次日卖出：</b>高开分批兑现；平开或小低开30分钟内不强就退出；低开超过-2%直接止损；只有站稳开盘价、分时均价且板块仍强时才允许保留部分仓位。</div>' +
     '<details class="trade-detail"><summary>展开仓位、止损与次日分档卖出规则</summary>' +
     '<div><b>不买条件：</b>高开超过预警、开盘后放量跌破均价或开盘价、板块同步转弱、出现利空公告；任一成立就放弃。</div>' +
     '<div><b>仓位与止损：</b>参考仓位 <em>' + esc(positionText) + '</em>；硬止损 <span class="riskline">' + stop + '</span>，或有效跌破分时均价。单笔最大亏损不超过总资金 2%。</div>' +
@@ -13932,7 +13937,7 @@ function renderAuction() {
   if (actionability) {
     actionability.innerHTML = d.actionable === false
       ? '<span class="orange"><b>仅复盘：</b></span>这份数据是收盘后根据开盘价回算的，不是当天 09:25 已经可执行的推荐，不能据此倒推购买。'
-      : '<span class="up"><b>09:25 实时定稿：</b></span>首次字段完整快照生成后锁定股票、分数和排名；后续行情只用于展示，不回写评分。';
+      : '<span class="gold"><b>09:25 仅生成候选：</b></span>不是无条件买入信号。必须等 09:30–10:00 站上开盘价和分时均价、板块未退潮且回踩有承接后再执行；高开过大、跌破均价或板块转弱就放弃。';
   }
   if (reasons) reasons.innerHTML = (model.reasons || []).map((x, i) =>
     '<div class="li"><span class="dot ' + (i === 0 ? 'gold' : 'blue') + '"></span><span>' + x + '</span></div>').join('');
@@ -14071,7 +14076,7 @@ function auctionQuoteInWindow(q) {
   return !!(c && c.date === ymdCompact(0) && c.sec >= 33902 && c.sec <= 33960);
 }
 
-/** 09:25:02 后候选竞价字段覆盖率≥95%即可定稿，缺失个股单独剔除。 */
+/** 09:25撮合后先判断价格字段覆盖率；成交量/额缺失时由B项0分兜底，不阻塞出榜。 */
 function auctionQuoteStats(quotes, codes) {
   const today = ymdCompact(0);
   const rows = Object.values(quotes || {}).filter((q) => q && Number(q.price) > 0);
@@ -14083,9 +14088,17 @@ function auctionQuoteStats(quotes, codes) {
     const q = quotes[code];
     const c = auctionQuoteClock(q);
     return q && c && c.date === today && c.sec >= 33902 &&
-      Number(q.prevClose) > 0 && Number(q.open) > 0 && Number(q.volume) > 0 && Number(q.amount) > 0;
+      Number(q.prevClose) > 0 && Number(q.open) > 0;
+  }).length;
+  const volumeCount = required.filter((code) => {
+    const q = quotes[code];
+    const c = auctionQuoteClock(q);
+    return q && c && c.date === today && c.sec >= 33902 &&
+      Number(q.prevClose) > 0 && Number(q.open) > 0 &&
+      Number(q.volume) > 0 && Number(q.amount) > 0;
   }).length;
   const coverage = required.length ? Math.min(1, completeCount / required.length) : 0;
+  const volumeCoverage = required.length ? Math.min(1, volumeCount / required.length) : 0;
   const latest = todayRows.length ? todayRows.reduce((m, x) => Math.max(m, x.sec), 0) : 0;
   return {
     today: today,
@@ -14094,8 +14107,9 @@ function auctionQuoteStats(quotes, codes) {
     finalCount: finalRows.length,
     completeCount: completeCount,
     coverage: coverage,
+    volumeCoverage: volumeCoverage,
     latest: latest,
-    ready: required.length > 0 && coverage >= .95 && finalRows.length > 0
+    ready: required.length > 0 && coverage >= .90 && finalRows.length > 0
   };
 }
 
@@ -14265,6 +14279,14 @@ async function auctionEnsure(force) {
       return null;
     }
 
+    const nowClock = bjNow();
+    const nowSec = nowClock.getHours() * 3600 + nowClock.getMinutes() * 60 + nowClock.getSeconds();
+    if (!snapshot && nowSec >= 33902 && nowSec < 33905) {
+      renderAuctionPending('09:25撮合已完成，正在等待行情源同步价格字段；约2秒后自动出榜。');
+      AUCTION.nextAutoAt = Date.now() + 1200;
+      return null;
+    }
+
     const pool = snapshot
       ? { day: snapshot.poolDay || snapshot.day, rows: snapshot.pool, poolType: snapshot.poolType || 'snapshot' }
       : await auctionCandidatePool();
@@ -14287,8 +14309,9 @@ async function auctionEnsure(force) {
     if (!quoteStats.ready) {
       const state = auctionLockWindow().state;
       const retryable = state === 'open' || state === 'late';
-      renderAuctionPending('首次快照字段覆盖 ' + fmt(quoteStats.coverage * 100, 1) +
-        '%，尚未达到 95%' + (retryable ? '；系统将继续自动重试' : '；可点击“一键选股”继续补取'));
+      renderAuctionPending('09:25撮合价格覆盖 ' + fmt(quoteStats.coverage * 100, 1) +
+        '%，达到90%后立即出榜；当前量能字段覆盖 ' + fmt(quoteStats.volumeCoverage * 100, 1) +
+        '%，量能缺失会按B项0分处理' + (retryable ? '；系统将继续自动重试' : '；可点击“一键选股”继续补取'));
       AUCTION.nextAutoAt = retryable ? Date.now() + (state === 'open' ? 2500 : 15000) : 0;
       return null;
     }
