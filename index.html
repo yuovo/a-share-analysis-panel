@@ -6,13 +6,13 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
 <meta http-equiv="Pragma" content="no-cache" />
 <meta http-equiv="Expires" content="0" />
-<meta name="apanel-build" content="2026-11-07-obsidian-frost-v3-early-auction-fix" />
+<meta name="apanel-build" content="2026-11-07-obsidian-frost-v4-trading-calendar" />
 <!-- 手机（iOS）加到主屏幕后按“应用”方式全屏运行 -->
 <meta name="apple-mobile-web-app-capable" content="yes" />
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
 <meta name="apple-mobile-web-app-title" content="A股智研" />
 <meta name="mobile-web-app-capable" content="yes" />
-<meta name="app-version" content="20261107-obsidian-frost-v3-early-auction-fix" />
+<meta name="app-version" content="20261107-obsidian-frost-v4-trading-calendar" />
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
 <meta http-equiv="Pragma" content="no-cache" />
 <meta http-equiv="Expires" content="0" />
@@ -13510,7 +13510,7 @@ function auctionPendingTracking(previous) {
   if (!previous || !Array.isArray(previous.picks) || !previous.picks.length) return null;
   return {
     date: previous.date,
-    verificationDay: ymdCompact(0),
+    verificationDay: auctionVerificationDay(previous.date),
     pending: true,
     rows: previous.picks.map((pick) => Object.assign({}, pick, {
       buyRef: Number(pick.price),
@@ -13520,6 +13520,31 @@ function auctionPendingTracking(previous) {
       action: '09:15后观察竞价；09:25确认后按高开、平开、低开分档处理；跌破成本 -3% 或分时均价线立即清仓'
     }))
   };
+}
+
+function auctionShiftCalendarDay(day, delta) {
+  const d = new Date(`${day.slice(0, 4)}-${day.slice(4, 6)}-${day.slice(6, 8)}T00:00:00Z`);
+  d.setUTCDate(d.getUTCDate() + delta);
+  return `${d.getUTCFullYear()}${pad2(d.getUTCMonth() + 1)}${pad2(d.getUTCDate())}`;
+}
+
+function auctionNextTradingDay(day) {
+  let cursor = auctionShiftCalendarDay(day, 1);
+  for (let i = 0; i < 10; i++) {
+    const d = new Date(`${cursor.slice(0, 4)}-${cursor.slice(4, 6)}-${cursor.slice(6, 8)}T00:00:00Z`);
+    const weekday = d.getUTCDay();
+    if (weekday >= 1 && weekday <= 5) return cursor;
+    cursor = auctionShiftCalendarDay(cursor, 1);
+  }
+  return cursor;
+}
+
+function auctionVerificationDay(previousDay) {
+  const today = ymdCompact(0);
+  const d = bjNow();
+  const weekday = d.getDay();
+  if (weekday >= 1 && weekday <= 5) return today > previousDay ? today : auctionNextTradingDay(previousDay);
+  return auctionNextTradingDay(today);
 }
 
 function renderAuctionTracking(tracking) {
@@ -13538,14 +13563,14 @@ function renderAuctionTracking(tracking) {
   const historical = AUCTION_ARCHIVE.byDate[tracking.date] && AUCTION_ARCHIVE.byDate[tracking.date].actionable !== true;
   if (dateLabel) dateLabel.textContent = auctionDateText(tracking.date);
   if (sub) sub.textContent = pending
-    ? '昨日优选持仓处置 · 等待今日 09:25 竞价确认'
+    ? '昨日优选持仓处置 · 等待 ' + auctionDateText(tracking.verificationDay) + ' 09:25 竞价确认'
     : historical ? '历史回填，仅做复盘验证，不构成当时已经给出的推荐' : '验证日 ' + auctionDateText(tracking.verificationDay || ymdCompact(0)) + ' · 定稿日竞价与当日开盘价对比';
   host.innerHTML = (pending ? '<div class="hint gold" style="margin-bottom:6px;">若昨日已买入：高开 &gt;3% 分批止盈；+1.5%～3% 先卖一半；平开或小低开等到 09:45，不能翻红且跌破均价线就清仓；低开 ≤-2% 直接止损；任何情况下跌破成本 -3% 不扛单。</div>' : '') +
     (historical ? '<div class="hint orange" style="margin-bottom:6px;">上一日记录属于历史回填，以下仅验证数据变化，不生成买卖指令。</div>' : '') +
     (rows.length ? rows.map((r) => '<div class="auction-pick"><div class="pick-top"><b>' +
     esc(r.name) + ' · ' + esc(r.code) + '</b><span class="tag ' + (pending ? 'gold' : r.gap > 0 ? 'red' : r.gap < -2 ? 'green' : 'gold') + '">' +
-    auctionDateText(tracking.date) + ' → ' + (pending ? '今日待验证' : auctionDateText(tracking.verificationDay || ymdCompact(0))) + '</span></div><div class="auction-plan">' + (historical ? '回填参考价' : '推荐日参考价') + ' <b>' + fmtP(r.buyRef) +
-    '</b>' + (pending ? ' · 今日竞价 <b class="gold">等待 09:25</b>' :
+    auctionDateText(tracking.date) + ' → ' + (pending ? auctionDateText(tracking.verificationDay) + ' 待验证' : auctionDateText(tracking.verificationDay || ymdCompact(0))) + '</span></div><div class="auction-plan">' + (historical ? '回填参考价' : '推荐日参考价') + ' <b>' + fmtP(r.buyRef) +
+    '</b>' + (pending ? ' · 验证日竞价 <b class="gold">等待 ' + auctionDateText(tracking.verificationDay) + ' 09:25</b>' :
       ' · 次日竞价 <b class="' + pctCls(r.gap) + '">' + (Number.isFinite(r.gap) ? sign(r.gap) + '%' : '--') +
       '</b> · 相对参考价 <b class="' + pctCls(r.pnl) + '">' + (Number.isFinite(r.pnl) ? sign(r.pnl) + '%' : '--') + '</b>') +
     '<br><span class="orange">' + (historical ? '复盘：' : '动作：') + '</span>' + esc(historical ? '仅验证竞价与承接，不生成交易建议。' : r.action) + '</div></div>').join('')
@@ -14143,49 +14168,59 @@ function renderAuctionPending(message) {
   AUCTION.fromSnapshot = false;
   const previous = auctionPreviousPlan(ymdCompact(0));
   const pendingPicks = previous && Array.isArray(previous.picks) ? previous.picks : [];
+  const nowDate = bjNow();
+  const weekend = nowDate.getDay() === 0 || nowDate.getDay() === 6;
+  const verificationDay = pendingPicks.length
+    ? auctionVerificationDay(previous.date)
+    : auctionNextTradingDay(ymdCompact(0));
   const blocked = /超过|不完整|未能生成|失败/.test(String(message || '')) && !/重试/.test(String(message || ''));
   const date = auctionDateText(ymdCompact(0));
   const phase = $('auctionPhase');
-  if (phase) { phase.className = 'tag ' + (blocked ? 'orange' : 'blue'); phase.textContent = blocked ? '不生成优选' : '等待 09:25 定稿'; }
+  if (phase) { phase.className = 'tag ' + (weekend ? 'gray' : blocked ? 'orange' : 'blue'); phase.textContent = weekend ? '周末休市' : blocked ? '不生成优选' : '等待 09:25 定稿'; }
   const status = $('auctionStatus');
   if (status) status.innerHTML = '<span class="gold">' + esc(message) + '</span>';
   const verdict = $('auctionVerdict');
   if (verdict) verdict.textContent = blocked
     ? '数据不完整，不生成今日优选'
-    : pendingPicks.length ? '昨日优选 ' + pendingPicks.length + ' 只 · 等待今日 09:25 验证' : '今日竞价尚未定稿';
+    : weekend
+      ? pendingPicks.length ? '周末休市 · 上一交易日优选 ' + pendingPicks.length + ' 只' : '周末休市 · 暂无上一交易日优选'
+      : pendingPicks.length ? '昨日优选 ' + pendingPicks.length + ' 只 · 等待今日 09:25 验证' : '今日竞价尚未定稿';
   const sub = $('auctionVerdictSub');
   if (sub) sub.textContent = blocked
     ? message
     : pendingPicks.length
-      ? '如昨日已买入：' + pendingPicks.map((x) => x.name).join(' / ') + '；09:15 后观察竞价，09:25 按持仓剧本执行。'
-      : '09:25:02 后取第一次字段完整快照；首次成功生成后，股票、分数和排名固定。';
+      ? (weekend ? '下一交易日 ' + auctionDateText(verificationDay) + ' 09:25 验证；' : '') +
+        '如已买入：' + pendingPicks.map((x) => x.name).join(' / ') + '；按下一交易日竞价与持仓剧本执行。'
+      : (weekend ? '下一交易日 ' + auctionDateText(verificationDay) + ' 09:25 生成竞价优选。' : '09:25:02 后取第一次字段完整快照；首次成功生成后，股票、分数和排名固定。');
   const score = $('auctionScore');
   if (score) score.textContent = '--';
   const dateLabel = $('auctionDateLabel');
   if (dateLabel) dateLabel.textContent = date;
   const planTitle = $('auctionPlanTitle');
-  if (planTitle) planTitle.textContent = '今日竞价优选';
+  if (planTitle) planTitle.textContent = weekend ? '上一交易日优选' : '今日竞价优选';
   const reasons = $('auctionReasons');
   if (reasons) reasons.innerHTML = '<div class="li"><span class="dot ' + (blocked ? 'red' : 'gray') + '"></span><span>' +
-    esc(blocked ? message : '等待 09:25:02 后的首次字段完整快照，不使用 09:24 可撤单数据。') + '</span></div>';
+    esc(blocked ? message : weekend ? '周末休市，不生成新的竞价优选；下一交易日 ' + auctionDateText(verificationDay) + ' 09:25 自动执行。' : '等待 09:25:02 后的首次字段完整快照，不使用 09:24 可撤单数据。') + '</span></div>';
   const actionability = $('auctionActionability');
-  if (actionability) actionability.innerHTML = '09:25:02后自动重试并锁定第一次完整结果；超过09:26仍可继续补取，不会失效。';
+  if (actionability) actionability.innerHTML = weekend
+    ? '当前周末休市：不等待“今日竞价”；上一交易日持仓在下一交易日 ' + esc(auctionDateText(verificationDay)) + ' 09:25 验证。'
+    : '09:25:02后自动重试并锁定第一次完整结果；超过09:26仍可继续补取，不会失效。';
   const metrics = $('auctionMetrics');
   if (metrics) metrics.innerHTML = ['最高标竞价', '动态阈值', '全局乘数', '锁定时间'].map((label) =>
     '<div class="card"><div class="card-title muted">' + label + '</div><div class="price">--</div><div class="card-sub">等待完整竞价快照</div></div>').join('');
   const environment = $('auctionEnvironment');
-  if (environment) environment.textContent = '市场环境等待最高标代表与昨日涨停池数据。';
+  if (environment) environment.textContent = weekend ? '市场环境：周末休市，按上一交易日定稿复盘，下一交易日重新生成。' : '市场环境等待最高标代表与昨日涨停池数据。';
   const ladderMode = $('auctionLadderMode');
   const ladderHint = $('auctionLadderModeHint');
   if (ladderMode) { ladderMode.className = 'tag gray'; ladderMode.textContent = '等待情绪判断'; }
-  if (ladderHint) ladderHint.textContent = '09:25 定稿后结合最高标竞价、市场高度和高开广度判定连板情绪周期。';
+  if (ladderHint) ladderHint.textContent = weekend ? '周末休市，沿用上一交易日情绪周期；下一交易日09:25重新判定。' : '09:25 定稿后结合最高标竞价、市场高度和高开广度判定连板情绪周期。';
   const plans = $('auctionPlans');
-  if (plans) plans.innerHTML = '<div class="muted">' + esc(blocked ? '今日不生成优选：' + message : '09:25 后系统会自动筛选并锁定；也可点击“一键选股”提前补取。') + '</div>';
+  if (plans) plans.innerHTML = '<div class="muted">' + esc(blocked ? '今日不生成优选：' + message : weekend ? '周末休市，不生成新的优选；左侧显示上一交易日定稿，下一交易日 ' + auctionDateText(verificationDay) + ' 09:25 更新。' : '09:25 后系统会自动筛选并锁定；也可点击“一键选股”提前补取。') + '</div>';
   renderAuctionTracking(auctionPendingTracking(previous));
   const sectors = $('auctionSectors');
-  if (sectors) sectors.innerHTML = '<tbody><tr><td class="muted" colspan="5">等待今日竞价定稿</td></tr></tbody>';
+  if (sectors) sectors.innerHTML = '<tbody><tr><td class="muted" colspan="5">' + (weekend ? '周末休市 · 下一交易日更新' : '等待今日竞价定稿') + '</td></tr></tbody>';
   const candidates = $('auctionCandidates');
-  if (candidates) candidates.innerHTML = '<tbody><tr><td class="muted" colspan="10">等待 09:25:02 后的首次字段完整快照；不使用 09:24 可撤单数据。</td></tr></tbody>';
+  if (candidates) candidates.innerHTML = '<tbody><tr><td class="muted" colspan="10">' + (weekend ? '周末休市 · 下一交易日09:25重新生成候选榜' : '等待 09:25:02 后的首次字段完整快照；不使用 09:24 可撤单数据。') + '</td></tr></tbody>';
   const watchPool = $('auctionWatchPool');
   if (watchPool) watchPool.innerHTML = '<div class="muted">尚无开板豁免观察标的。</div>';
   const watchCount = $('auctionWatchCount');
@@ -14557,8 +14592,9 @@ async function auctionEnsure(force) {
     AUCTION.loading = false;
     if (btn) {
       const locked = !!(AUCTION.data && (AUCTION.fromArchive || auctionLoadLock()));
-      btn.disabled = locked;
-      btn.textContent = locked ? '已选定' : '一键选股';
+      const closed = auctionLockWindow().state === 'closed';
+      btn.disabled = locked || closed;
+      btn.textContent = closed ? '周末休市' : locked ? '已选定' : '一键选股';
     }
   }
 }
