@@ -7,7 +7,7 @@ const JS_FILE = path.join(ROOT, 'auction-daily.js');
 const ZT_UT = '7eea3edcaed734bea9cbfc24409ed989';
 const GENERATED_AT = new Date().toISOString();
 const FORCE_REFRESH = process.env.AUCTION_FORCE === '1';
-const SCORING_VERSION = 'auction-v10-20261105-volume-fallback';
+const SCORING_VERSION = 'auction-v11-20261117-unified-rules';
 const SNAPSHOT_VERSION = 'auction-snapshot-v1';
 
 function beijingToday() {
@@ -210,7 +210,7 @@ function openForDay(candles, day) {
 
 function scoreCandidate(candidate) {
   const a = scoreA(candidate.gap);
-  const b = scoreB(candidate.volRatio, candidate.auctionAmountRatio);
+  const b = scoreB(String(candidate.volumeRatioMode).startsWith('5日竞价量比') ? candidate.volRatio : NaN, candidate.auctionAmountRatio);
   const c = scoreC(candidate.height, candidate.marketMaxHeight);
   const d = scoreD(candidate.firstTime);
   const e = scoreE(candidate.breaks);
@@ -233,13 +233,13 @@ function interp(x, x1, y1, x2, y2) {
 }
 
 function scoreA(gap) {
-  if (!Number.isFinite(gap) || gap < -2.5 || gap > 6.5) return 0;
-  if (gap < 0) return interp(gap, -2.5, 0, 0, 4);
-  if (gap < 2) return interp(gap, 0, 4, 2, 10);
-  if (gap < 3) return interp(gap, 2, 14, 3, 16);
-  if (gap < 4) return interp(gap, 3, 16, 4, 12);
-  if (gap < 5) return interp(gap, 4, 12, 5, 8);
-  return interp(gap, 5, 8, 6.5, 4);
+  // 与手机页同一套：低开反核给满分，高开越多越低
+  if (!Number.isFinite(gap) || gap > 6.5 || gap < -7) return 0;
+  if (gap < -2.5) return 16;
+  if (gap < -0.5) return 10;
+  if (gap < 2) return 8;
+  if (gap < 4) return 4;
+  return 2;
 }
 
 function scoreB(volumeRatio, amountRatio) {
@@ -292,6 +292,15 @@ function ladderStage(height) {
   return h === 1 ? '1进2' : h === 2 ? '2进3' : h === 3 ? '3进4' : '4进5以上';
 }
 
+function positionPctOf(height, cycleLabel) {
+  const h = Math.max(1, Number(height) || 1);
+  if (cycleLabel === '退潮期') return h >= 2 ? '0%–5%' : '≤5%';
+  if (cycleLabel === '冰点期') return h >= 4 ? '不参与' : h <= 2 ? '≤5%' : '5%–10%';
+  if (cycleLabel === '高潮期') return h >= 4 ? '≤5%或不参与' : '5%–10%';
+  if (cycleLabel === '发酵期') return h >= 4 ? '≤10%' : h === 3 ? '10%–20%' : h === 2 ? '10%–15%' : '5%–10%';
+  return h >= 4 ? '0%–5%' : h === 3 ? '10%–20%' : '5%–10%';
+}
+
 function ladderCycle(topGap, marketHeight, highOpenRatio) {
   if (!Number.isFinite(topGap) || topGap < -3 || highOpenRatio < 0.35) {
     return { key: 'retreat', label: '退潮期', note: '空仓或极轻仓；不打高位板' };
@@ -305,11 +314,16 @@ function ladderCycle(topGap, marketHeight, highOpenRatio) {
   return { key: 'launch', label: '启动期', note: '优先板块前三辨识度' };
 }
 
-function environment(topGap) {
-  if (!Number.isFinite(topGap)) return { multiplier: 1, threshold: 58, maxPicks: 2, level: '数据缺失', tone: 'neutral' };
-  if (topGap < -3) return { multiplier: 0.85, threshold: 63, maxPicks: 1, level: '高风险降权', tone: 'risk' };
-  if (topGap < -1) return { multiplier: 0.95, threshold: 60, maxPicks: 2, level: '弱化', tone: 'risk' };
-  return { multiplier: 1, threshold: 58, maxPicks: 2, level: '正常', tone: 'opp' };
+function environment(poolSize) {
+  // 与手机页一致：按昨日涨停家数反向调节，而不是只看最高标竞价
+  const size = Number(poolSize);
+  if (!Number.isFinite(size) || size <= 0) {
+    return { multiplier: 1, threshold: 61, maxPicks: 2, level: '数据缺失', tone: 'neutral' };
+  }
+  if (size >= 60) return { multiplier: 0.9, threshold: 66, maxPicks: 1, level: '过热收缩', tone: 'risk' };
+  if (size >= 20 && size < 40) return { multiplier: 1.05, threshold: 59, maxPicks: 2, level: '偏冷放宽', tone: 'opp' };
+  if (size < 20) return { multiplier: 1, threshold: 73, maxPicks: 0, level: '极冷空仓', tone: 'risk' };
+  return { multiplier: 1, threshold: 61, maxPicks: 2, level: '正常', tone: 'opp' };
 }
 
 async function fetchAuctionBaseline(code) {
@@ -381,7 +395,7 @@ async function buildRecord(day, poolDay, pool, openMap, snapshotMode, poolType) 
   const representativeQuote = openMap.get(representativeCode) || null;
   const topGap = representativeQuote && representativeQuote.prevClose > 0
     ? (representativeQuote.open / representativeQuote.prevClose - 1) * 100 : null;
-  const env = environment(topGap);
+  const env = environment(rows.length);
   const marketMaxHeight = rows.reduce((max, row) => Math.max(max, row.height), 0);
   const selected = rows.slice().sort((a, b) =>
     a.firstTime - b.firstTime || b.amount - a.amount || b.height - a.height
@@ -450,17 +464,17 @@ async function buildRecord(day, poolDay, pool, openMap, snapshotMode, poolType) 
   const highOpenRatio = validGaps.length ? validGaps.filter((candidate) => candidate.gap > 0).length / validGaps.length : null;
   const ladder = ladderCycle(topGap, marketMaxHeight, highOpenRatio);
   if (ladder.key === 'retreat') {
-    env.threshold = Math.max(env.threshold, 63);
-    env.maxPicks = 1;
+    env.threshold = Math.max(env.threshold, 66);
+    env.maxPicks = Math.min(env.maxPicks, 1);
   } else if (['ice', 'climax', 'diverge'].includes(ladder.key)) {
-    env.maxPicks = 1;
+    env.maxPicks = Math.min(env.maxPicks, 1);
   }
 
   for (const candidate of candidates) {
     if (/ST|退/i.test(candidate.name)) candidate.filtered = 'ST / 退市风险';
     else if (!candidate.price || !Number.isFinite(candidate.gap)) candidate.filtered = '竞价行情缺失';
     else if (!Number.isFinite(candidate.ydayAmount)) candidate.filtered = '昨日成交额缺失';
-    else if (candidate.gap < -2.5) candidate.filtered = '竞价低开超过 -2.5%';
+    else if (candidate.gap < -7) candidate.filtered = '竞价低开超过 -7%';
     else if (candidate.gap > 6.5) candidate.filtered = '竞价高开超过 6.5%';
     else if (candidate.code === representativeCode && topGap < -3) candidate.filtered = '昨日最高标代表竞价低于 -3%';
     else if (!Number.isFinite(candidate.firstTime) || candidate.firstTime <= 0) candidate.filtered = '昨日封板时间缺失';
@@ -526,12 +540,30 @@ async function buildRecord(day, poolDay, pool, openMap, snapshotMode, poolType) 
 
   const ranked = candidates.filter((candidate) => !candidate.filtered && !candidate.watchOnly && Number.isFinite(candidate.finalScore))
     .sort((a, b) => b.finalScore - a.finalScore || b.gap - a.gap || a.code.localeCompare(b.code));
-  const picks = ranked.filter((candidate) => !candidate.boardDowngraded).slice(0, env.maxPicks).map((candidate, index) => ({
+  // 与手机页一致：先按板块去重，再做同质双票去重
+  const diversified = [];
+  for (const candidate of ranked.filter((c) => !c.boardDowngraded)) {
+    if (diversified.some((pick) => pick.sector === candidate.sector)) continue;
+    diversified.push(candidate);
+    if (diversified.length >= env.maxPicks) break;
+  }
+  let picked = diversified.map((candidate, index) => ({
     ...candidate,
     rank: index + 1,
     stage: ladderStage(candidate.height),
-    positionPct: env.multiplier < 1 ? '5%–10%' : index === 0 ? '15%–20%' : '10%–15%'
+    positionPct: positionPctOf(candidate.height, ladder.label)
   }));
+  if (picked.length > 1) {
+    const [first, second] = picked;
+    const bothNormalOpen = [first.gap, second.gap].every((gap) => gap >= -1.5 && gap <= 5.5);
+    const bothHighOpen = [first.gap, second.gap].every((gap) => Number.isFinite(gap) && gap > 2);
+    if (first.stage === second.stage && (bothHighOpen || (bothNormalOpen && first.finalScore - second.finalScore <= 6))) {
+      picked = [first];
+    } else {
+      picked.forEach((pick) => { pick.positionPct = '5%–10%'; });
+    }
+  }
+  const picks = picked;
   const rankMap = new Map(picks.map((pick) => [pick.code, pick.rank]));
   candidates.forEach((candidate) => { candidate.rank = rankMap.get(candidate.code) || 0; });
   const watchPool = candidates.filter((candidate) => candidate.watchOnly);
