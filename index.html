@@ -6,13 +6,13 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
 <meta http-equiv="Pragma" content="no-cache" />
 <meta http-equiv="Expires" content="0" />
-<meta name="apanel-build" content="2026-11-18-aurora-plum-v1" />
+<meta name="apanel-build" content="2026-11-18-liquid-glass-v2" />
 <!-- 手机（iOS）加到主屏幕后按“应用”方式全屏运行 -->
 <meta name="apple-mobile-web-app-capable" content="yes" />
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
 <meta name="apple-mobile-web-app-title" content="A股智研" />
 <meta name="mobile-web-app-capable" content="yes" />
-<meta name="app-version" content="20261118-aurora-plum-v1" />
+<meta name="app-version" content="20261118-liquid-glass-v2" />
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
 <meta http-equiv="Pragma" content="no-cache" />
 <meta http-equiv="Expires" content="0" />
@@ -1583,6 +1583,300 @@ table.tbl tbody tr:hover{background:linear-gradient(90deg,rgba(130,216,246,.075)
 @media (prefers-reduced-motion:reduce){
   body::after,.topbar::after,.auction-hero::after,.side-nav .navbar a.on::before{animation:none !important;}
   .panel,.card,.btn,.navbar a,.nav-trigger,.tag{transition:none !important;}
+}
+
+/* ============================================================
+   2026-11-18 · Liquid Glass interaction layer
+   iOS 毛玻璃、指针光影、磁吸反馈与弹性过渡。
+   ============================================================ */
+:root{
+  --glass-edge:rgba(255,255,255,.15);
+  --glass-edge-strong:rgba(255,255,255,.25);
+  --glass-fill:rgba(28,19,40,.48);
+  --glass-fill-soft:rgba(255,255,255,.045);
+  --glass-shadow:0 28px 70px rgba(3,1,8,.38);
+  --glass-blur:blur(30px) saturate(175%);
+  --glass-x:50%;
+  --glass-y:30%;
+}
+html{background:#07050b;}
+body{
+  background:#09060f;
+  isolation:isolate;
+}
+body::before{
+  content:"";
+  position:fixed;
+  inset:-16%;
+  z-index:-2;
+  opacity:1;
+  pointer-events:none;
+  background:
+    radial-gradient(34% 44% at 10% 14%,rgba(156,86,229,.72),transparent 72%),
+    radial-gradient(31% 38% at 84% 8%,rgba(52,183,210,.48),transparent 72%),
+    radial-gradient(37% 42% at 72% 84%,rgba(255,137,157,.34),transparent 72%),
+    radial-gradient(30% 38% at 26% 86%,rgba(255,188,104,.24),transparent 72%),
+    linear-gradient(150deg,#0b0712 0%,#140b20 46%,#080710 100%);
+  filter:blur(22px);
+  transform:translate3d(0,0,0) scale(1.04);
+  animation:glass-mesh 24s ease-in-out infinite alternate;
+}
+body::after{
+  width:620px;height:620px;
+  right:-230px;top:8vh;
+  background:
+    radial-gradient(circle at 42% 38%,rgba(129,221,247,.24),transparent 38%),
+    radial-gradient(circle at 62% 66%,rgba(169,100,224,.2),transparent 54%);
+  filter:blur(38px);
+  opacity:.9;
+  animation:glass-orb 18s cubic-bezier(.45,0,.2,1) infinite alternate;
+}
+
+.topbar{
+  border-color:var(--glass-edge);
+  background:
+    linear-gradient(112deg,rgba(255,255,255,.105),rgba(255,255,255,.035) 48%,rgba(130,216,246,.055)),
+    rgba(20,13,29,.52);
+  box-shadow:0 20px 54px rgba(4,2,10,.34),inset 0 1px rgba(255,255,255,.2),inset 0 -1px rgba(255,255,255,.035);
+  -webkit-backdrop-filter:var(--glass-blur);
+  backdrop-filter:var(--glass-blur);
+}
+.topbar::before{
+  content:"";
+  position:absolute;inset:0;
+  border-radius:inherit;
+  pointer-events:none;
+  background:linear-gradient(115deg,rgba(255,255,255,.13),transparent 24%,transparent 72%,rgba(255,255,255,.05));
+}
+.side-nav{
+  border-right-color:rgba(255,255,255,.13);
+  background:
+    linear-gradient(145deg,rgba(255,255,255,.09),rgba(255,255,255,.025) 48%,rgba(130,216,246,.04)),
+    rgba(18,11,27,.58);
+  box-shadow:24px 0 70px rgba(2,1,7,.34),inset -1px 0 rgba(255,255,255,.05);
+  -webkit-backdrop-filter:blur(32px) saturate(180%);
+  backdrop-filter:blur(32px) saturate(180%);
+  transition:width .42s cubic-bezier(.2,1.3,.35,1),transform .46s cubic-bezier(.2,1.32,.32,1);
+}
+.nav-overlay{
+  background:rgba(5,2,10,.38);
+  -webkit-backdrop-filter:blur(18px) saturate(135%);
+  backdrop-filter:blur(18px) saturate(135%);
+  transition:opacity .32s ease;
+}
+
+.panel{
+  background:
+    radial-gradient(360px circle at var(--glass-x) var(--glass-y),rgba(255,255,255,.12),transparent 48%),
+    linear-gradient(145deg,rgba(255,255,255,.085),rgba(255,255,255,.025) 52%,rgba(130,216,246,.035)),
+    rgba(25,17,36,.42);
+  border-color:var(--glass-edge);
+  box-shadow:var(--glass-shadow),inset 0 1px rgba(255,255,255,.17),inset 0 -1px rgba(255,255,255,.025);
+  -webkit-backdrop-filter:var(--glass-blur);
+  backdrop-filter:var(--glass-blur);
+  transform-style:preserve-3d;
+  transition:border-color .2s ease,box-shadow .25s ease,transform .24s cubic-bezier(.2,.8,.2,1),background .24s ease;
+  will-change:transform;
+}
+.panel:hover{
+  border-color:rgba(255,255,255,.24);
+  box-shadow:0 32px 80px rgba(3,1,8,.42),inset 0 1px rgba(255,255,255,.22),0 0 0 1px rgba(130,216,246,.045);
+  transform:perspective(1100px) rotateX(var(--tilt-x,0deg)) rotateY(var(--tilt-y,0deg)) translateY(-2px);
+}
+.panel.page-on{animation:glass-page-enter .52s cubic-bezier(.16,1,.3,1) both;}
+.panel.page-on::after{
+  content:"";
+  position:absolute;inset:-1px;
+  z-index:-1;
+  padding:1px;
+  border-radius:inherit;
+  pointer-events:none;
+  background:linear-gradient(110deg,rgba(130,216,246,0),rgba(130,216,246,.7),rgba(255,192,119,.48),rgba(255,95,122,.28),rgba(130,216,246,0));
+  background-size:280% 100%;
+  -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);
+  -webkit-mask-composite:xor;
+  mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);
+  mask-composite:exclude;
+  opacity:.42;
+  animation:glass-border-flow 8s linear infinite;
+}
+.panel.page-on>.panel-head,
+.panel.page-on>*:not(.panel-head){
+  animation:glass-item-rise .52s cubic-bezier(.2,1.08,.32,1) both;
+}
+.panel.page-on>*:nth-child(2){animation-delay:.035s;}
+.panel.page-on>*:nth-child(3){animation-delay:.07s;}
+.panel.page-on>*:nth-child(4){animation-delay:.105s;}
+.panel.page-on>*:nth-child(5){animation-delay:.14s;}
+.panel.page-on>*:nth-child(6){animation-delay:.175s;}
+.panel.page-on>*:nth-child(n+7){animation-delay:.21s;}
+
+.card,
+.advice,
+.auction-pick,
+.trade-plan,
+.note,
+.hint-box,
+.risk-box{
+  background:
+    radial-gradient(260px circle at var(--glass-x) var(--glass-y),rgba(255,255,255,.09),transparent 50%),
+    linear-gradient(150deg,rgba(255,255,255,.07),rgba(255,255,255,.022)),
+    rgba(27,18,38,.34);
+  border-color:rgba(255,255,255,.13);
+  box-shadow:0 16px 42px rgba(4,1,10,.19),inset 0 1px rgba(255,255,255,.12);
+  -webkit-backdrop-filter:blur(22px) saturate(160%);
+  backdrop-filter:blur(22px) saturate(160%);
+  transform-style:preserve-3d;
+}
+.card:hover{
+  background:
+    radial-gradient(280px circle at var(--glass-x) var(--glass-y),rgba(255,255,255,.13),transparent 52%),
+    linear-gradient(150deg,rgba(255,255,255,.095),rgba(255,255,255,.03)),
+    rgba(29,20,41,.38);
+  border-color:rgba(255,255,255,.22);
+  box-shadow:0 22px 56px rgba(4,1,10,.25),inset 0 1px rgba(255,255,255,.17);
+  transform:perspective(900px) rotateX(var(--tilt-x,0deg)) rotateY(var(--tilt-y,0deg)) translateY(-2px);
+}
+.advice.risk{
+  background:
+    radial-gradient(320px circle at var(--glass-x) var(--glass-y),rgba(255,255,255,.1),transparent 48%),
+    linear-gradient(145deg,rgba(129,58,73,.42),rgba(255,143,106,.06)),
+    rgba(42,21,31,.38);
+  border-color:rgba(255,159,147,.22);
+}
+.advice.opp{
+  background:
+    radial-gradient(320px circle at var(--glass-x) var(--glass-y),rgba(255,255,255,.11),transparent 48%),
+    linear-gradient(145deg,rgba(35,111,135,.36),rgba(130,216,246,.055)),
+    rgba(18,29,41,.36);
+  border-color:rgba(130,216,246,.24);
+}
+.tbl-wrap{
+  background:rgba(9,6,15,.34);
+  border-color:rgba(255,255,255,.11);
+  -webkit-backdrop-filter:blur(18px) saturate(150%);
+  backdrop-filter:blur(18px) saturate(150%);
+}
+table.tbl th{
+  background:linear-gradient(180deg,rgba(57,41,74,.82),rgba(29,20,42,.8));
+  -webkit-backdrop-filter:blur(16px) saturate(150%);
+  backdrop-filter:blur(16px) saturate(150%);
+}
+
+.btn,.nav-trigger,.side-nav .navbar a,.chip,.seg-btn{
+  transform:translate3d(var(--mag-x,0),var(--mag-y,0),0);
+  will-change:transform;
+}
+.btn{
+  border-color:rgba(255,255,255,.14);
+  background:
+    linear-gradient(180deg,rgba(255,255,255,.075),rgba(255,255,255,.025)),
+    rgba(27,18,38,.42);
+  -webkit-backdrop-filter:blur(18px) saturate(165%);
+  backdrop-filter:blur(18px) saturate(165%);
+  transition:transform .24s cubic-bezier(.2,1.35,.35,1),border-radius .22s ease,border-color .18s ease,box-shadow .18s ease,color .18s ease,background .18s ease;
+}
+.btn:hover{
+  border-radius:999px;
+  border-color:rgba(255,255,255,.28);
+  box-shadow:0 14px 34px rgba(3,1,8,.23),inset 0 1px rgba(255,255,255,.2);
+}
+.btn:active{
+  border-radius:17px;
+  transform:translate3d(var(--mag-x,0),var(--mag-y,0),0) scale(.96);
+  box-shadow:inset 0 4px 12px rgba(0,0,0,.24),inset 0 1px rgba(255,255,255,.16);
+  transition-duration:.06s;
+}
+.btn.primary{
+  background:
+    linear-gradient(120deg,rgba(255,255,255,.3),transparent 34%),
+    linear-gradient(120deg,#7b55b4 0%,#4aa9c7 52%,#86d9ef 100%);
+}
+.side-nav .navbar a{
+  border-color:rgba(255,255,255,.035);
+  background:rgba(255,255,255,.018);
+  -webkit-backdrop-filter:blur(10px);
+  backdrop-filter:blur(10px);
+}
+.side-nav .navbar a:hover{
+  border-color:rgba(255,255,255,.13);
+  background:linear-gradient(90deg,rgba(255,255,255,.08),rgba(130,216,246,.045));
+  transform:translate3d(var(--mag-x,0),var(--mag-y,0),0) translateX(2px);
+}
+.side-nav .navbar a:active,
+.nav-trigger:active,
+.chip:active,
+.seg-btn:active{
+  transform:translate3d(var(--mag-x,0),var(--mag-y,0),0) scale(.96);
+}
+.nav-trigger{
+  border-color:rgba(255,255,255,.16);
+  background:linear-gradient(145deg,rgba(255,255,255,.1),rgba(255,255,255,.025));
+  -webkit-backdrop-filter:blur(18px) saturate(170%);
+  backdrop-filter:blur(18px) saturate(170%);
+}
+
+.price.number-tick{animation:glass-number-roll .34s cubic-bezier(.2,1.25,.35,1);}
+.glass-pressed{animation:glass-press-release .32s cubic-bezier(.2,1.4,.35,1);}
+
+@keyframes glass-mesh{
+  0%{transform:translate3d(-1.5%,-1%,0) scale(1.04) rotate(-.4deg);}
+  50%{transform:translate3d(1%,1.5%,0) scale(1.08) rotate(.35deg);}
+  100%{transform:translate3d(2%,-1%,0) scale(1.05) rotate(-.2deg);}
+}
+@keyframes glass-orb{
+  from{transform:translate3d(0,-20px,0) scale(.92);}
+  to{transform:translate3d(-120px,90px,0) scale(1.16);}
+}
+@keyframes glass-border-flow{
+  from{background-position:0% 50%;}
+  to{background-position:280% 50%;}
+}
+@keyframes glass-page-enter{
+  from{opacity:.4;transform:translateY(12px) scale(.988);filter:blur(5px);}
+  to{opacity:1;transform:none;filter:none;}
+}
+@keyframes glass-item-rise{
+  from{opacity:0;transform:translateY(12px) scale(.992);}
+  to{opacity:1;transform:none;}
+}
+@keyframes glass-number-roll{
+  0%{opacity:.35;transform:translateY(7px) scale(.96);filter:blur(2px);}
+  62%{opacity:1;transform:translateY(-2px) scale(1.025);filter:blur(0);}
+  100%{transform:none;}
+}
+@keyframes glass-press-release{
+  0%{transform:scale(.96);}
+  58%{transform:scale(1.018);}
+  100%{transform:scale(1);}
+}
+
+@supports not ((backdrop-filter:blur(1px)) or (-webkit-backdrop-filter:blur(1px))){
+  .topbar,.side-nav,.panel,.card,.advice,.tbl-wrap,.btn{
+    background-color:rgba(25,17,36,.92);
+  }
+}
+
+@media (max-width:1024px){
+  .nav-overlay{-webkit-backdrop-filter:blur(14px) saturate(140%);backdrop-filter:blur(14px) saturate(140%);}
+}
+@media (max-width:760px){
+  body::before{filter:blur(16px);animation-duration:30s;}
+  body::after{filter:blur(30px);opacity:.68;}
+  .topbar,.side-nav,.panel,.card,.advice{
+    -webkit-backdrop-filter:blur(24px) saturate(165%);
+    backdrop-filter:blur(24px) saturate(165%);
+  }
+  .panel,.panel:hover,.card,.card:hover{
+    transform:none;
+  }
+  .panel.page-on>*{animation-duration:.42s;}
+  .btn:hover{border-radius:13px;}
+}
+@media (prefers-reduced-motion:reduce){
+  body::before,body::after,.panel.page-on,.panel.page-on::after,
+  .panel.page-on>*,.price.number-tick,.glass-pressed{animation:none !important;}
+  .panel,.panel:hover,.card,.card:hover,.btn,.btn:active,.side-nav .navbar a,.nav-trigger,.chip,.seg-btn{transform:none !important;transition:none !important;}
 }
 </style>
 </head>
@@ -16265,6 +16559,115 @@ if (document.readyState === 'loading') {
   init();
 }
 
+</script>
+<script>
+/* Liquid Glass：指针光影、磁吸反馈、数字翻滚和触觉回弹。 */
+(() => {
+  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+  const finePointer = window.matchMedia('(hover: hover) and (pointer: fine)');
+  let activeSurface = null;
+  let activeMagnet = null;
+
+  function resetSurface(el) {
+    if (!el) return;
+    el.classList.remove('glass-active');
+    el.style.setProperty('--glass-x', '50%');
+    el.style.setProperty('--glass-y', '30%');
+    el.style.setProperty('--tilt-x', '0deg');
+    el.style.setProperty('--tilt-y', '0deg');
+  }
+
+  function resetMagnet(el) {
+    if (!el) return;
+    el.style.setProperty('--mag-x', '0px');
+    el.style.setProperty('--mag-y', '0px');
+  }
+
+  function updatePointerEffects(event) {
+    if (!(event.target instanceof Element) || reduceMotion.matches || !finePointer.matches || window.innerWidth < 1025) return;
+
+    const surface = event.target.closest('.panel,.card,.advice,.auction-pick,.trade-plan');
+    if (activeSurface && activeSurface !== surface) resetSurface(activeSurface);
+    activeSurface = surface;
+    if (surface) {
+      const rect = surface.getBoundingClientRect();
+      const px = Math.max(0, Math.min(1, (event.clientX - rect.left) / Math.max(1, rect.width)));
+      const py = Math.max(0, Math.min(1, (event.clientY - rect.top) / Math.max(1, rect.height)));
+      const interactive = !!event.target.closest('input,select,textarea,button,a,table,canvas');
+      surface.style.setProperty('--glass-x', (px * 100).toFixed(2) + '%');
+      surface.style.setProperty('--glass-y', (py * 100).toFixed(2) + '%');
+      surface.style.setProperty('--tilt-x', interactive ? '0deg' : ((0.5 - py) * 1.7).toFixed(2) + 'deg');
+      surface.style.setProperty('--tilt-y', interactive ? '0deg' : ((px - 0.5) * 1.9).toFixed(2) + 'deg');
+      surface.classList.add('glass-active');
+    }
+
+    const magnet = event.target.closest('.btn,.nav-trigger,.side-nav .navbar a,.chip,.seg-btn');
+    if (activeMagnet && activeMagnet !== magnet) resetMagnet(activeMagnet);
+    activeMagnet = magnet;
+    if (magnet) {
+      const rect = magnet.getBoundingClientRect();
+      const dx = event.clientX - (rect.left + rect.width / 2);
+      const dy = event.clientY - (rect.top + rect.height / 2);
+      magnet.style.setProperty('--mag-x', Math.max(-3.5, Math.min(3.5, dx * .08)).toFixed(2) + 'px');
+      magnet.style.setProperty('--mag-y', Math.max(-2.5, Math.min(2.5, dy * .1)).toFixed(2) + 'px');
+    }
+  }
+
+  document.addEventListener('pointermove', updatePointerEffects, { passive: true });
+  document.addEventListener('pointerdown', updatePointerEffects, { passive: true });
+
+  document.addEventListener('pointerout', (event) => {
+    if (activeSurface && (!event.relatedTarget || !activeSurface.contains(event.relatedTarget))) {
+      resetSurface(activeSurface);
+      activeSurface = null;
+    }
+    if (activeMagnet && (!event.relatedTarget || !activeMagnet.contains(event.relatedTarget))) {
+      resetMagnet(activeMagnet);
+      activeMagnet = null;
+    }
+  }, true);
+
+  document.addEventListener('pointercancel', () => {
+    resetSurface(activeSurface);
+    resetMagnet(activeMagnet);
+    activeSurface = null;
+    activeMagnet = null;
+  }, { passive: true });
+
+  document.addEventListener('pointerup', (event) => {
+    if (reduceMotion.matches || !(event.target instanceof Element)) return;
+    const control = event.target.closest('.btn,.nav-trigger,.side-nav .navbar a,.chip,.seg-btn,.clickable');
+    if (!control) return;
+    control.classList.remove('glass-pressed');
+    void control.offsetWidth;
+    control.classList.add('glass-pressed');
+    setTimeout(() => control.classList.remove('glass-pressed'), 340);
+  }, { passive: true });
+
+  const main = document.querySelector('main');
+  if (main && 'MutationObserver' in window) {
+    const lastTick = new WeakMap();
+    const observer = new MutationObserver((records) => {
+      if (reduceMotion.matches) return;
+      const targets = new Set();
+      records.forEach((record) => {
+        const node = record.target.nodeType === 3 ? record.target.parentElement : record.target;
+        const price = node && node.closest ? node.closest('.price') : null;
+        if (price) targets.add(price);
+      });
+      targets.forEach((price) => {
+        const now = performance.now();
+        if (now - (lastTick.get(price) || 0) < 240) return;
+        lastTick.set(price, now);
+        price.classList.remove('number-tick');
+        void price.offsetWidth;
+        price.classList.add('number-tick');
+        setTimeout(() => price.classList.remove('number-tick'), 380);
+      });
+    });
+    observer.observe(main, { subtree: true, childList: true, characterData: true });
+  }
+})();
 </script>
 </body>
 </html>
