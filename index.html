@@ -6,13 +6,13 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
 <meta http-equiv="Pragma" content="no-cache" />
 <meta http-equiv="Expires" content="0" />
-<meta name="apanel-build" content="2026-11-17-obsidian-frost-v5-unified-auction" />
+<meta name="apanel-build" content="2026-11-07-obsidian-frost-v5-desktop-archive-fix" />
 <!-- 手机（iOS）加到主屏幕后按“应用”方式全屏运行 -->
 <meta name="apple-mobile-web-app-capable" content="yes" />
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
 <meta name="apple-mobile-web-app-title" content="A股智研" />
 <meta name="mobile-web-app-capable" content="yes" />
-<meta name="app-version" content="20261107-obsidian-frost-v4-trading-calendar" />
+<meta name="app-version" content="20261107-obsidian-frost-v5-desktop-archive-fix" />
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
 <meta http-equiv="Pragma" content="no-cache" />
 <meta http-equiv="Expires" content="0" />
@@ -1625,8 +1625,8 @@ table.tbl tbody tr:hover{background:rgba(104,198,242,.06);}
 
   <div class="card" style="margin-bottom:12px;">
     <div class="card-head">
-      <div class="card-title">竞价候选 · A–G 分项与最终排名</div>
-      <div class="card-sub" id="auctionCandSub">最终分 =（48 + A+B+C+D+E+F+G）× 乘数；锁定后不因盘中行情改分改榜</div>
+      <div class="card-title">竞价候选 · A–F 分项与最终排名</div>
+      <div class="card-sub" id="auctionCandSub">最终分 =（48 + A+B+C+D+E+F）× G；锁定后不因盘中行情改分改榜</div>
       <div class="spacer"></div>
       <span class="tag gray">最多展示 12 只</span>
     </div>
@@ -4530,12 +4530,6 @@ function parseQuote(code, raw) {
     const implied = amount / price;
     shareUnit = (implied / volume) < 10 ? 1 : 100;
   }
-  /* 五档盘口：腾讯 9..18 = 买一价/买一量…买五价/买五量，19..28 = 卖一价/卖一量…卖五价/卖五量 */
-  const bookNum = (i) => (Number.isFinite(toNum(p[i])) ? toNum(p[i]) : 0);
-  const bidPrices = [9, 11, 13, 15, 17].map(bookNum);
-  const bidVolumes = [10, 12, 14, 16, 18].map(bookNum);
-  const askPrices = [19, 21, 23, 25, 27].map(bookNum);
-  const askVolumes = [20, 22, 24, 26, 28].map(bookNum);
   const chg = Number.isFinite(toNum(p[31])) ? toNum(p[31]) : (Number.isFinite(prev) ? price - prev : NaN);
   const chgPct = Number.isFinite(toNum(p[32])) ? toNum(p[32]) : (prev ? (price - prev) / prev * 100 : NaN);
   return {
@@ -4544,8 +4538,7 @@ function parseQuote(code, raw) {
     outer: toNum(p[7]), inner: toNum(p[8]), shareUnit: shareUnit,
     volume: volume * shareUnit, amount: amount, turnover: toNum(p[38]), pe: toNum(p[39]),
     amplitude: toNum(p[43]), floatCap: toNum(p[44]), totalCap: toNum(p[45]),
-    pb: toNum(p[46]), volRatio: toNum(p[49]), time: String(p[30] || ''),
-    bidPrices: bidPrices, bidVolumes: bidVolumes, askPrices: askPrices, askVolumes: askVolumes
+    pb: toNum(p[46]), volRatio: toNum(p[49]), time: String(p[30] || '')
   };
 }
 
@@ -12887,11 +12880,11 @@ const ZT_NEXT = { at: 0, items: [], loading: false, market: null };
 const AUCTION = { at: 0, data: null, loading: false, nextAutoAt: 0, fromArchive: false, fromSnapshot: false, armed: false, activeDay: '' };
 const AUCTION_PICK_KEY = 'apanel_auction_picks_v1';
 const AUCTION_LOCK_KEY = 'apanel_auction_lock_v1';
-const AUCTION_SCORING_VERSION = 'auction-v11-20261117-unified-rules';
+const AUCTION_SCORING_VERSION = 'auction-v10-20261105-volume-fallback';
 const AUCTION_SNAPSHOT_VERSION = 'auction-snapshot-v1';
 const AUCTION_BASELINE_URL = 'https://push2his.eastmoney.com/api/qt/stock/trends2/get';
 const AUCTION_ARCHIVE_URL = location.protocol === 'file:'
-  ? 'https://yuovo.github.io/apanel/auction-daily.js'
+  ? 'https://yuovo.github.io/a-share-analysis-panel/auction-daily.js'
   : './auction-daily.js';
 const AUCTION_ARCHIVE_CACHE_KEY = 'apanel_auction_daily_cache_v3';
 const AUCTION_ARCHIVE = { ready: false, loading: null, records: [], byDate: {}, error: '', at: 0 };
@@ -13675,14 +13668,14 @@ function auctionInterp(x, x1, y1, x2, y2) {
 }
 
 /** A：竞价高开钟形分段，2%–3% 峰值区。 */
-/** A：竞价位置。低开反核（-7%~-2.5%）给满分，高开越多分越低（EV 回测结论）。 */
 function auctionScoreA(gap) {
-  if (!Number.isFinite(gap) || gap > 6.5 || gap < -7) return 0;
-  if (gap < -2.5) return 16;
-  if (gap < -0.5) return 10;
-  if (gap < 2) return 8;
-  if (gap < 4) return 4;
-  return 2;
+  if (!Number.isFinite(gap) || gap < -2.5 || gap > 6.5) return 0;
+  if (gap < 0) return auctionInterp(gap, -2.5, 0, 0, 4);
+  if (gap < 2) return auctionInterp(gap, 0, 4, 2, 10);
+  if (gap < 3) return auctionInterp(gap, 2, 14, 3, 16);
+  if (gap < 4) return auctionInterp(gap, 3, 16, 4, 12);
+  if (gap < 5) return auctionInterp(gap, 4, 12, 5, 8);
+  return auctionInterp(gap, 5, 8, 6.5, 4);
 }
 
 /** B：竞价量比 + 竞价额占昨日全天成交额比例。 */
@@ -13730,46 +13723,25 @@ function auctionScoreF(candidate) {
   return clamp(link + position, -8, 6);
 }
 
-/** 盘口委托比：(委买总量 - 委卖总量) / (委买 + 委卖) × 100 */
-function auctionBookRatio(q) {
-  const bid = (q && Array.isArray(q.bidVolumes) ? q.bidVolumes : []).reduce((sum, v) => sum + (Number(v) || 0), 0);
-  const ask = (q && Array.isArray(q.askVolumes) ? q.askVolumes : []).reduce((sum, v) => sum + (Number(v) || 0), 0);
-  const total = bid + ask;
-  return total > 0 ? (bid - ask) / total * 100 : NaN;
-}
-
-/** G：09:25 五档委比，0–6 分。 */
-function auctionScoreG(bookRatio) {
-  const r = Number(bookRatio);
-  if (!Number.isFinite(r)) return 0;
-  return r >= 50 ? 6 : r >= 20 ? 4 : r >= 0 ? 2 : 0;
-}
-
 function auctionScoreCandidate(candidate, env) {
   const a = auctionScoreA(candidate.gap);
-  /* 代理模式下 volRatio 就是 amountRatio 本身，不能重复计分 */
-  const realVolume = String(candidate.volumeRatioMode || '').indexOf('5日竞价量比') === 0;
-  const b = auctionScoreB(realVolume ? candidate.volRatio : NaN, candidate.auctionAmountRatio);
+  const b = auctionScoreB(candidate.volRatio, candidate.auctionAmountRatio);
   const c = auctionScoreC(candidate.height, env.marketMaxHeight);
   const d = auctionScoreD(candidate.firstTime);
   const e = auctionScoreE(candidate.breaks);
   const f = auctionScoreF(candidate);
-  const g = auctionScoreG(candidate.bookRatio);
-  const raw = 48 + a + b + c + d + e + f + g;
+  const raw = 48 + a + b + c + d + e + f;
   return {
-    a: a, b: b, c: c, d: d, e: e, f: f, g: g,
+    a: a, b: b, c: c, d: d, e: e, f: f,
     base: raw, total: Math.round(raw * env.multiplier * 10) / 10
   };
 }
 
-/** 环境档位：按昨日涨停家数反向调节（过热收紧、偏冷放宽、极冷空仓）。 */
-function auctionEnvironment(poolSize) {
-  const size = Number(poolSize);
-  if (!Number.isFinite(size) || size <= 0) return { multiplier: 1, threshold: 61, maxPicks: 2, level: '数据缺失', tone: 'neutral' };
-  if (size >= 60) return { multiplier: 0.9, threshold: 66, maxPicks: 1, level: '过热收缩', tone: 'risk' };
-  if (size >= 20 && size < 40) return { multiplier: 1.05, threshold: 59, maxPicks: 2, level: '偏冷放宽', tone: 'opp' };
-  if (size < 20) return { multiplier: 1, threshold: 73, maxPicks: 0, level: '极冷空仓', tone: 'risk' };
-  return { multiplier: 1, threshold: 61, maxPicks: 2, level: '正常', tone: 'opp' };
+function auctionEnvironment(topGap) {
+  if (!Number.isFinite(topGap)) return { multiplier: 1, threshold: 58, maxPicks: 2, level: '数据缺失', tone: 'neutral' };
+  if (topGap < -3) return { multiplier: 0.85, threshold: 63, maxPicks: 1, level: '高风险降权', tone: 'risk' };
+  if (topGap < -1) return { multiplier: 0.95, threshold: 60, maxPicks: 2, level: '弱化', tone: 'risk' };
+  return { multiplier: 1, threshold: 58, maxPicks: 2, level: '正常', tone: 'opp' };
 }
 
 /** 连板打板阶段：昨日连板高度对应当天的晋级路径。 */
@@ -13856,7 +13828,7 @@ async function auctionFiveDayBaseline(code, q) {
   };
   const histVol = mean(hist.map((x) => x.volume).filter((v) => v > 0));
   const qClock = auctionQuoteClock(q);
-  const exactAuctionQuote = qClock && qClock.sec >= 33900 && qClock.sec <= 33960;
+  const exactAuctionQuote = qClock && qClock.sec >= 33902 && qClock.sec <= 33960;
   const currentVol = todayRow && todayRow.volume > 0 ? todayRow.volume :
     (exactAuctionQuote && Number(q.volume) > 0 ? Number(q.volume) / Math.max(1, Number(q.shareUnit) || 1) : NaN);
   const histAmt = mean(hist.map((x) => x.amount).filter((v) => v > 0));
@@ -14025,14 +13997,14 @@ function renderAuction() {
   const cand = $('auctionCandidates');
   const candSub = $('auctionCandSub');
   if (candSub) candSub.textContent = d.selectionSource === 'independent-snapshot'
-    ? '共享原始数据 + 本页独立评分 · 最终分 =（48+A+B+C+D+E+F+G）× 乘数'
+    ? '共享原始数据 + 本页独立评分 · 最终分 =（48+A+B+C+D+E+F）× G'
     : d.archiveSource === 'shared'
-    ? '定稿日 ' + auctionDateText(d.day) + ' · 最终分 =（48+A+B+C+D+E+F+G）× 乘数'
+    ? '定稿日 ' + auctionDateText(d.day) + ' · 最终分 =（48+A+B+C+D+E+F）× G'
     : d.lockedAt ? '09:25 首次完整快照已锁定；创/科板入选降级、主板按分数递补；点击任意一行载入 K 线与买卖分析' : '全榜按最终分排序；创/科板入选降级，主板按分数递补';
   if (cand) {
     const rankedCandidates = d.candidates.filter((c) => !c.filtered && !c.watchOnly && Number.isFinite(c.finalScore))
       .sort((a, b) => b.finalScore - a.finalScore);
-    cand.innerHTML = '<thead><tr><th>排名</th><th>名称 / 代码</th><th>板块</th><th>连板 / 阶段 / 仓位</th><th>A / B / C / D / E / F / G</th><th>竞价</th><th>现价</th><th>竞价量能</th><th>最终分</th><th>操作</th></tr></thead><tbody>' +
+    cand.innerHTML = '<thead><tr><th>排名</th><th>名称 / 代码</th><th>板块</th><th>连板 / 阶段 / 仓位</th><th>A / B / C / D / E / F</th><th>竞价</th><th>现价</th><th>竞价量能</th><th>最终分</th><th>操作</th></tr></thead><tbody>' +
       (rankedCandidates.length ? rankedCandidates.slice(0, 20).map((c) => '<tr class="clickable" data-code="' + esc(c.code) + '" data-period="day">' +
         '<td class="mono ' + (c.boardDowngraded ? 'orange' : c.rank === 1 ? 'red' : c.rank ? 'gold' : 'muted') + '">' +
           (c.boardDowngraded ? '降级' : (c.rank || '--')) + '</td>' +
@@ -14040,7 +14012,7 @@ function renderAuction() {
         '<td class="muted">' + esc(c.sector || '--') + '</td><td class="mono">' + c.height + ' 板 · ' + esc(c.ladderStage || auctionLadderStage(c.height).name) +
           '<br><span class="code">' + esc(c.ladderPositionPct || '--') + '</span>' +
           (c.sectorRank ? '<br><span class="code">板块第' + c.sectorRank + '</span>' : '') + '</td>' +
-        '<td class="mono">' + [c.scoreA, c.scoreB, c.scoreC, c.scoreD, c.scoreE, c.scoreF, c.scoreG].map((v) => fmt(v, 1)).join(' / ') + '</td>' +
+        '<td class="mono">' + [c.scoreA, c.scoreB, c.scoreC, c.scoreD, c.scoreE, c.scoreF].map((v) => fmt(v, 1)).join(' / ') + '</td>' +
         '<td class="mono ' + pctCls(c.gap) + '">' + (Number.isFinite(c.gap) ? sign(c.gap) + '%' : '--') + '</td>' +
         '<td class="mono ' + pctCls(c.liveChange) + '">' + fmtP(c.lastPrice) + '<br><span class="code">' + (Number.isFinite(c.liveChange) ? sign(c.liveChange) + '%' : '--') + '</span></td>' +
         '<td class="mono" title="' + esc(c.volumeRatioMode) + '">' + fmt(c.volRatio, 2) + '<br><span class="code">' + esc(c.volumeRatioMode) + '</span></td>' +
@@ -14061,7 +14033,7 @@ function renderAuction() {
       ' · <b>板块</b> ' + esc(c.sector || '--') + '<br><b>打板纪律</b> ' + esc(c.ladderGuide || '') +
       '<br><b>分项</b> 基础48 + A' + fmt(c.scoreA, 1) + ' + B' + fmt(c.scoreB, 1) +
       ' + C' + fmt(c.scoreC, 1) + ' + D' + fmt(c.scoreD, 1) + ' + E' + fmt(c.scoreE, 1) + ' + F' + fmt(c.scoreF, 1) +
-      ' + G' + fmt(c.scoreG, 1) + ' × 乘数' + d.decision.multiplier + ' = <b>' + fmt(c.finalScore, 1) + '</b>' +
+      ' × G' + d.decision.multiplier + ' = <b>' + fmt(c.finalScore, 1) + '</b>' +
       '<br><b>竞价量能</b> ' + fmt(c.volRatio, 2) + '（' + esc(c.volumeRatioMode) + '） · <b>开板</b> ' + c.breaks + ' 次' +
       ' · <b>首封</b> ' + (Number.isFinite(c.firstTime) ? ztTime(c.firstTime) : '--') +
       tradeMethodHtml('auction', c.price, c.positionPct) + '</div></div>').join('')
@@ -14096,8 +14068,8 @@ function renderAuction() {
   if (risks) {
     const items = (model.risks || []).concat([
       '创业板 300/301 与科创板 688/689 正常参与评分；若进入优选前排则标记“降级”，由下一名主板股票按分数递补。',
-      '竞价涨幅低于 -7% 或高开超过 6.5%：直接剔除；竞价委比低于 -30% 同样剔除。',
-      '昨日最高标代表竞价低于 -3%：该标的自过滤。环境档位改为按昨日涨停家数调节——过热（≥60 家）0.9 乘数 / 66 分 / 最多 1 只，偏冷（20–39 家）1.05 乘数 / 59 分，极冷（<20 家）73 分且空仓。',
+      '竞价涨幅低于 -2.5% 或高开超过 6.5%：直接剔除。',
+      '昨日最高标代表竞价低于 -3%：该标的自过滤，同时全局乘数降至 0.85、阈值升至 63 分，最多只取 1 只。',
       '昨日开板 3 次及以上默认过滤；只有真实 5 日竞价量比 ≥8 且竞价额占昨日全天成交额 ≥10% 才进入观察池，不参与排名。',
       '昨日 14:30 后封板直接过滤；13:30 后封板且竞价低于 -1% 同样过滤。',
       '最终分低于动态阈值不入选；没有合格股票时保持空仓，不用残缺数据或旧日期补榜。'
@@ -14126,7 +14098,7 @@ function auctionQuoteClock(q) {
 
 function auctionQuoteInWindow(q) {
   const c = auctionQuoteClock(q);
-  return !!(c && c.date === ymdCompact(0) && c.sec >= 33900 && c.sec <= 33960);
+  return !!(c && c.date === ymdCompact(0) && c.sec >= 33902 && c.sec <= 33960);
 }
 
 /** 09:25撮合后先判断价格字段覆盖率；成交量/额缺失时由B项0分兜底，不阻塞出榜。 */
@@ -14135,18 +14107,18 @@ function auctionQuoteStats(quotes, codes) {
   const rows = Object.values(quotes || {}).filter((q) => q && Number(q.price) > 0);
   const timed = rows.map((q) => auctionQuoteClock(q)).filter(Boolean);
   const todayRows = timed.filter((x) => x.date === today);
-  const finalRows = todayRows.filter((x) => x.sec >= 33900);
+  const finalRows = todayRows.filter((x) => x.sec >= 33902);
   const required = Array.from(new Set((codes || []).filter(Boolean)));
   const completeCount = required.filter((code) => {
     const q = quotes[code];
     const c = auctionQuoteClock(q);
-    return q && c && c.date === today && c.sec >= 33900 &&
+    return q && c && c.date === today && c.sec >= 33902 &&
       Number(q.prevClose) > 0 && Number(q.open) > 0;
   }).length;
   const volumeCount = required.filter((code) => {
     const q = quotes[code];
     const c = auctionQuoteClock(q);
-    return q && c && c.date === today && c.sec >= 33900 &&
+    return q && c && c.date === today && c.sec >= 33902 &&
       Number(q.prevClose) > 0 && Number(q.open) > 0 &&
       Number(q.volume) > 0 && Number(q.amount) > 0;
   }).length;
@@ -14408,8 +14380,7 @@ async function auctionEnsure(force) {
         mode: height >= 3 && gap > 0 ? '强转强' : sector !== '其他' && gap > 0 ? '板块共振' : '观察承接',
         quote: q, quoteSource: q ? '腾讯竞价' : '缺失', volRatio: NaN, volumeRatioMode: '未计算',
         sectorCount: 0, sectorMaxHeight: 0, sectorLeaderGap: NaN, sectorHigher: false,
-        bookRatio: auctionBookRatio(q),
-        scoreA: 0, scoreB: 0, scoreC: 0, scoreD: 0, scoreE: 0, scoreF: 0, scoreG: 0,
+        scoreA: 0, scoreB: 0, scoreC: 0, scoreD: 0, scoreE: 0, scoreF: 0,
         baseScore: 48, finalScore: NaN, filtered: '', watchOnly: false, watchReason: '', rank: 0
       };
     });
@@ -14449,16 +14420,18 @@ async function auctionEnsure(force) {
       AUCTION.nextAutoAt = 0;
       return null;
     }
-    const env = auctionEnvironment(base.allCount);
+    const env = auctionEnvironment(topGap);
     const marketMaxHeight = base.maxHeight;
     const maxFTime = Number(base.representative && base.representative.fbt);
     const validGaps = candidates.filter((c) => Number.isFinite(c.gap));
     const highOpenRatio = validGaps.length ? validGaps.filter((c) => c.gap > 0).length / validGaps.length : NaN;
     const ladderCycle = auctionLadderCycle(topGap, marketMaxHeight, highOpenRatio);
     if (ladderCycle.key === 'retreat') {
-      env.threshold = Math.max(env.threshold, 66);
-      env.maxPicks = Math.min(env.maxPicks, 1);
-    } else if (ladderCycle.key === 'ice' || ladderCycle.key === 'climax' || ladderCycle.key === 'diverge') {
+      env.threshold = Math.max(env.threshold, 63);
+      env.maxPicks = 1;
+    } else if (ladderCycle.key === 'ice' || ladderCycle.key === 'climax') {
+      env.maxPicks = 1;
+    } else if (ladderCycle.key === 'diverge') {
       env.maxPicks = Math.min(env.maxPicks, 1);
     }
 
@@ -14472,9 +14445,8 @@ async function auctionEnsure(force) {
       else if (!c.quote || !Number.isFinite(c.prevClose) || !Number.isFinite(c.price)) c.filtered = '竞价行情缺失';
       else if (!Number.isFinite(c.ydayAmount)) c.filtered = '昨日成交额缺失';
       else if (!Number.isFinite(c.gap)) c.filtered = '竞价涨幅缺失';
-      else if (c.gap < -7) c.filtered = '竞价低开超过 -7%';
+      else if (c.gap < -2.5) c.filtered = '竞价低开超过 -2.5%';
       else if (c.gap > 6.5) c.filtered = '竞价高开超过 6.5%';
-      else if (Number.isFinite(c.bookRatio) && c.bookRatio < -30) c.filtered = '竞价委比低于 -30%';
       else if (c.code === repCode && topGap < -3) c.filtered = '昨日最高标代表竞价低于 -3%';
       else if (!Number.isFinite(c.firstTime) || c.firstTime <= 0) c.filtered = '昨日封板时间缺失';
       else if (c.firstTime > 143000) c.filtered = '昨日 14:30 后封板';
@@ -14533,7 +14505,7 @@ async function auctionEnsure(force) {
 
     scorePool.filter((c) => !c.filtered && !c.watchOnly).forEach((c) => {
       const sc = auctionScoreCandidate(c, Object.assign({ marketMaxHeight }, env));
-      c.scoreA = sc.a; c.scoreB = sc.b; c.scoreC = sc.c; c.scoreD = sc.d; c.scoreE = sc.e; c.scoreF = sc.f; c.scoreG = sc.g;
+      c.scoreA = sc.a; c.scoreB = sc.b; c.scoreC = sc.c; c.scoreD = sc.d; c.scoreE = sc.e; c.scoreF = sc.f;
       c.baseScore = sc.base; c.finalScore = sc.total;
       if (c.finalScore < env.threshold) c.filtered = '最终分低于动态阈值 ' + env.threshold;
     });
@@ -14542,30 +14514,10 @@ async function auctionEnsure(force) {
       .sort((a, b) => b.finalScore - a.finalScore || b.gap - a.gap || a.code.localeCompare(b.code));
     /* 创/科板保留最终分与全榜排序，但不占优选名额；主板高分依次递补。 */
     const preferred = ranked.filter((c) => !c.boardDowngraded);
-    /* 同板块只留最高分 1 只，再凑满上限 */
-    const diversified = [];
-    for (const cand of preferred) {
-      if (diversified.some((pick) => pick.sector === cand.sector)) continue;
-      diversified.push(cand);
-      if (diversified.length >= env.maxPicks) break;
-    }
-    let picked = diversified.map((c, i) => Object.assign(c, {
+    const picks = preferred.slice(0, env.maxPicks).map((c, i) => Object.assign(c, {
       rank: i + 1,
       positionPct: c.ladderPositionPct || (env.multiplier < 1 ? '5%–10%' : i === 0 ? '15%–20%' : '10%–15%')
     }));
-    /* 两只同阶段且同质高开/结构接近时只留最高分 1 只，避免风险重复 */
-    if (picked.length > 1) {
-      const first = picked[0], second = picked[1];
-      const bothNormalOpen = [first.gap, second.gap].every((gap) => gap >= -1.5 && gap <= 5.5);
-      const bothHighOpen = [first.gap, second.gap].every((gap) => Number.isFinite(gap) && gap > 2);
-      if (first.ladderStage === second.ladderStage &&
-          (bothHighOpen || (bothNormalOpen && first.finalScore - second.finalScore <= 6))) {
-        picked = [first];
-      } else {
-        picked.forEach((p) => { p.positionPct = '5%–10%'; });
-      }
-    }
-    const picks = picked;
     const rankMap = {};
     picks.forEach((p) => { rankMap[p.code] = p.rank; });
     candidates.forEach((c) => { if (rankMap[c.code]) c.rank = rankMap[c.code]; });
@@ -14590,9 +14542,8 @@ async function auctionEnsure(force) {
       picks.length ? '今日优选：' + picks.map((p) => p.name + ' ' + fmt(p.finalScore, 1) + ' 分').join(' / ') : '没有股票达到动态阈值，今天不生成优选。'
     ];
     const risks = [];
-    if (env.level === '过热收缩') risks.push('昨日涨停家数 ≥60（过热）：0.9 乘数、66 分阈值，最多只取 1 只。');
-    if (env.level === '偏冷放宽') risks.push('昨日涨停家数 20–39（偏冷）：1.05 乘数、59 分阈值。');
-    if (env.level === '极冷空仓') risks.push('昨日涨停家数 <20（极冷）：73 分阈值且今日不生成优选。');
+    if (topGap < -3) risks.push('最高标代表竞价低于 -3%：触发全局 0.85 乘数、63 分阈值，最多只取 1 只。');
+    if (topGap >= -3 && topGap < -1) risks.push('最高标代表竞价处于 -3% 至 -1%：全局乘数 0.95，阈值上浮至 60 分。');
     risks.push('连板阶段：1进2≤1成；2进3确认主线后小仓；3进4单票2–3成；4进5以上≤1成或不参与。');
     if (filteredList.length) risks.push('硬过滤与动态阈值共剔除 ' + filteredList.length + ' 只，明细见“被过滤名单”。');
     const result = {
