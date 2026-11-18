@@ -6,13 +6,13 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
 <meta http-equiv="Pragma" content="no-cache" />
 <meta http-equiv="Expires" content="0" />
-<meta name="apanel-build" content="2026-11-18-sunlit-glass-v3" />
+<meta name="apanel-build" content="2026-11-18-sunlit-glass-v4-grid" />
 <!-- 手机（iOS）加到主屏幕后按“应用”方式全屏运行 -->
 <meta name="apple-mobile-web-app-capable" content="yes" />
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
 <meta name="apple-mobile-web-app-title" content="A股智研" />
 <meta name="mobile-web-app-capable" content="yes" />
-<meta name="app-version" content="20261118-sunlit-glass-v3" />
+<meta name="app-version" content="20261118-sunlit-glass-v4-grid" />
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
 <meta http-equiv="Pragma" content="no-cache" />
 <meta http-equiv="Expires" content="0" />
@@ -2168,6 +2168,77 @@ table.tbl .name{color:#1b313c;}
     background:linear-gradient(155deg,rgba(255,255,255,.9),rgba(240,249,252,.78));
   }
 }
+
+/* 把旧版遗留的深色内容块统一改成浅蓝玻璃 */
+.pick-card,
+.pick-stock,
+.watch-condition,
+.zchip,
+.plain-box,
+.plain-item,
+.boll-dashboard,
+.boll-rule,
+.boll-kline-note .bi,
+.intraday-rule,
+.wm-hold,
+.cal-stock,
+.cal-watch-chip,
+.chip,
+.seg-btn,
+.suggest,
+.tip,
+.cloud-tip,
+.cloud-empty{
+  color:var(--text);
+  border-color:rgba(128,165,181,.27);
+  background:
+    radial-gradient(220px circle at var(--glass-x,50%) var(--glass-y,30%),rgba(255,255,255,.68),transparent 58%),
+    linear-gradient(145deg,rgba(255,255,255,.72),rgba(241,250,253,.55));
+  box-shadow:0 8px 24px rgba(70,104,121,.08),inset 0 1px rgba(255,255,255,.95);
+}
+.pick-stock,.plain-item,.boll-rule,.intraday-rule,.watch-condition,.wm-hold{
+  box-shadow:none;
+}
+.plain-box{
+  background:linear-gradient(135deg,rgba(208,246,235,.62),rgba(237,249,253,.58));
+  border-color:rgba(74,170,139,.25);
+}
+.plain-box.risk{
+  background:linear-gradient(135deg,rgba(255,231,232,.78),rgba(255,246,238,.58));
+  border-color:rgba(217,71,98,.22);
+}
+.plain-box.neutral{
+  background:linear-gradient(135deg,rgba(225,244,252,.7),rgba(246,251,253,.58));
+  border-color:rgba(107,162,187,.24);
+}
+.boll-dashboard{
+  background:linear-gradient(135deg,rgba(218,247,250,.72),rgba(245,252,254,.58));
+  border-color:rgba(87,180,197,.24);
+}
+.boll-kline-note .bi{border-color:rgba(73,174,188,.2);background:rgba(236,251,252,.62);}
+.boll-kline-note .bi.hot,.boll-rule.trigger{background:rgba(255,235,238,.72);border-color:rgba(217,71,98,.22);}
+.boll-kline-note .bi.risk,.boll-rule.risk{background:rgba(228,248,241,.7);border-color:rgba(16,143,112,.22);}
+.boll-rule.warn{background:rgba(255,246,227,.76);border-color:rgba(173,114,26,.22);}
+.boll-quote{background:rgba(255,247,230,.72);border-color:rgba(173,114,26,.23);color:#8c5b12;}
+.boll-live{background:rgba(226,249,249,.7);border-color:rgba(37,164,182,.25);color:#087183;}
+.suggest{background:rgba(252,254,255,.97);border-color:rgba(141,176,191,.32);box-shadow:0 18px 45px rgba(65,98,115,.18);}
+.sg-head{background:rgba(226,242,248,.58);}
+.sg-item{border-bottom-color:rgba(126,161,176,.18);}
+.sg-item:hover,.sg-item.on{background:rgba(215,244,253,.68);}
+.tip,.cloud-tip{background:rgba(252,254,255,.97);box-shadow:0 12px 30px rgba(57,91,108,.2);}
+.cloud-empty{background:rgba(247,252,254,.88);}
+.chip{background:rgba(255,255,255,.52);}
+.chip .x{background:rgba(111,146,162,.1);}
+.segs{background:rgba(255,255,255,.48);border-color:rgba(141,176,191,.3);}
+.segs button,.seg-btn{color:#5d7481;background:transparent;}
+.segs button.on,.seg-btn.on{color:#0b6f96;background:rgba(212,242,251,.72);}
+.tier-label.first{background:rgba(113,146,161,.1);color:#6d8390;}
+.tier-label.high{color:#aa2943;}
+.cal-stock:hover,.cal-watch-chip:hover,.zchip:hover,.chip:hover{border-color:rgba(44,151,187,.36);color:#0c6d94;}
+#holdingChart{
+  background:linear-gradient(145deg,rgba(248,253,255,.96),rgba(226,244,250,.84));
+  border:1px solid rgba(135,174,190,.24);
+}
 </style>
 </head>
 
@@ -4134,16 +4205,16 @@ function setupCanvas(cv, cssHeight) {
 }
 
 const CLR = {
-  grid: 'rgba(34,48,74,.75)',
-  axis: '#5d6b83',
-  text: '#8c9cb6',
-  red: '#ff4d5e',
-  green: '#12c46a',
-  gold: '#f0b73f',
-  blue: '#4a9eff',
-  purple: '#b06bff',
-  white: '#cfd8e8',
-  cross: 'rgba(240,183,63,.55)'
+  grid: 'rgba(75,116,135,.22)',
+  axis: '#6d8490',
+  text: '#5b7280',
+  red: '#d94762',
+  green: '#108f70',
+  gold: '#ad721a',
+  blue: '#177da8',
+  purple: '#7868ad',
+  white: '#2b4652',
+  cross: 'rgba(177,112,24,.48)'
 };
 
 /** 基于现有 MACD / KDJ / RSI / 均线数据提取历史与实时买卖信号 */
@@ -4220,13 +4291,13 @@ function drawKlineTradeMarks(ctx, candles, ind, o, xOf, yOf, plot) {
       ? Math.min(plot.top + plot.height - bh, yOf(c.low) + (live ? 6 : 4))
       : Math.max(plot.top + 1, yOf(c.high) - bh - (live ? 6 : 4));
     ctx.save();
-    ctx.fillStyle = live ? color : 'rgba(7,13,23,.94)';
+    ctx.fillStyle = live ? color : 'rgba(255,255,255,.94)';
     ctx.strokeStyle = color;
     ctx.lineWidth = live ? 1.7 : 1;
     ctx.fillRect(x - bw / 2, y, bw, bh);
     ctx.strokeRect(x - bw / 2 + 0.5, y + 0.5, bw - 1, bh - 1);
     if (live) {
-      ctx.strokeStyle = 'rgba(255,255,255,.72)';
+      ctx.strokeStyle = 'rgba(23,72,91,.3)';
       ctx.lineWidth = 1;
       ctx.strokeRect(x - bw / 2 - 2, y - 2, bw + 4, bh + 4);
     }
@@ -4510,7 +4581,7 @@ function drawMACD(cv, candles, ind, opt) {
   mx *= 1.15;
   const yOf = (v) => padT + plotH / 2 - (v / mx) * (plotH / 2);
   // 零轴与网格
-  ctx.strokeStyle = 'rgba(140,156,182,.45)';
+  ctx.strokeStyle = 'rgba(75,116,135,.18)';
   ctx.lineWidth = 1;
   ctx.beginPath(); ctx.moveTo(padL, yOf(0)); ctx.lineTo(padL + plotW, yOf(0)); ctx.stroke();
   ctx.font = '10.5px Consolas, Menlo, monospace';
@@ -4716,13 +4787,13 @@ function drawGauge(cv, value) {
   const ang = angOf(clamp(value, 0, 100));
   ctx.beginPath();
   ctx.lineWidth = 3;
-  ctx.strokeStyle = '#e9eff9';
+  ctx.strokeStyle = '#355967';
   ctx.moveTo(cx, cy);
   ctx.lineTo(cx + Math.cos(ang) * (R - 4), cy + Math.sin(ang) * (R - 4));
   ctx.stroke();
   ctx.beginPath();
   ctx.arc(cx, cy, 5, 0, Math.PI * 2);
-  ctx.fillStyle = '#e9eff9';
+  ctx.fillStyle = '#355967';
   ctx.fill();
   // 刻度文字
   ctx.font = '10.5px Consolas, Menlo, monospace';
@@ -9100,13 +9171,13 @@ function drawMinuteTradeMarks(ctx, marks, xyOf, plot, opt) {
       ? Math.min(plot.top + plot.height - bh, pos.y + (live ? away + 5 : away))
       : Math.max(plot.top + 1, pos.y - bh - (live ? away + 5 : away));
     ctx.save();
-    ctx.fillStyle = live ? color : 'rgba(7,13,23,.94)';
+    ctx.fillStyle = live ? color : 'rgba(255,255,255,.94)';
     ctx.strokeStyle = color;
     ctx.lineWidth = live ? 1.6 : 1;
     ctx.fillRect(x - bw / 2, y, bw, bh);
     ctx.strokeRect(x - bw / 2 + 0.5, y + 0.5, bw - 1, bh - 1);
     if (live) {
-      ctx.strokeStyle = 'rgba(255,255,255,.68)';
+      ctx.strokeStyle = 'rgba(23,72,91,.3)';
       ctx.lineWidth = 1;
       ctx.strokeRect(x - bw / 2 - 2, y - 2, bw + 4, bh + 4);
     }
@@ -9217,7 +9288,7 @@ function drawMinuteFlow(cv, perMin, flow, opt) {
   const n = (perMin || []).length;
   ctx.textAlign = 'left';
   ctx.font = '12px "Microsoft YaHei",sans-serif';
-  ctx.fillStyle = '#8c9cb6';
+  ctx.fillStyle = '#5b7280';
   if (!n) { ctx.fillText('暂无数据', padL + 8, padT + 16); return; }
   const val = (x) => (o.mode === 'amount' ? (x.amount || 0) : ((x.big || 0) + (x.huge || 0)));
   let mx = 1;
@@ -9227,7 +9298,7 @@ function drawMinuteFlow(cv, perMin, flow, opt) {
   const yOf = (v) => y0 - (v / mx) * (half - 2);
   const stepX = plotW / n;
   const bw = Math.max(1, stepX * 0.68);
-  ctx.strokeStyle = 'rgba(140,156,182,.45)';
+  ctx.strokeStyle = 'rgba(75,116,135,.18)';
   ctx.beginPath(); ctx.moveTo(padL, y0); ctx.lineTo(padL + plotW, y0); ctx.stroke();
   ctx.font = '10.5px Consolas, Menlo, monospace';
   ctx.fillStyle = CLR.text;
@@ -9343,7 +9414,7 @@ function drawMinute(cv, m, quote, opt) {
   SES.labels.forEach((lb) => {
     const slot = lb[0];
     const x = padL + slot * (plotW / SLOTS);
-    ctx.strokeStyle = 'rgba(34,48,74,.85)';
+    ctx.strokeStyle = 'rgba(75,116,135,.18)';
     ctx.beginPath(); ctx.moveTo(x, padT); ctx.lineTo(x, padT + plotH + gap + volH); ctx.stroke();
   });
   /* 昨收虚线 */
@@ -15709,7 +15780,7 @@ function drawWatchMinute(cv, m, quote, activeIndex) {
   const plotW = W - padL - padR, plotH = H - padT - padB;
   if (!pts.length) {
     ctx.font = '12px "Microsoft YaHei",sans-serif';
-    ctx.fillStyle = '#8c9cb6';
+    ctx.fillStyle = '#5b7280';
     ctx.fillText('无分时数据', padL + 6, padT + 18);
     return;
   }
@@ -15728,7 +15799,7 @@ function drawWatchMinute(cv, m, quote, activeIndex) {
   const xOf = (i) => padL + (i / (n - 1)) * plotW;
   const yOf = (v) => padT + plotH - ((v - lo) / (hi - lo)) * plotH;
   ctx.setLineDash([3, 3]);
-  ctx.strokeStyle = '#5b6b85';
+  ctx.strokeStyle = 'rgba(79,119,136,.34)';
   ctx.lineWidth = 1;
   ctx.beginPath(); ctx.moveTo(padL, yOf(prev)); ctx.lineTo(padL + plotW, yOf(prev)); ctx.stroke();
   ctx.setLineDash([]);
@@ -15759,7 +15830,7 @@ function drawWatchMinute(cv, m, quote, activeIndex) {
     { left: padL, top: padT, width: plotW, height: plotH },
     { maxMarks: 2, compact: true });
   ctx.font = '10.5px Consolas,Menlo,monospace';
-  ctx.fillStyle = '#8c9cb6';
+  ctx.fillStyle = '#5b7280';
   ctx.fillText('高 ' + fmtP(rawHi) + '  低 ' + fmtP(rawLo), padL + 2, 11);
   ctx.textAlign = 'right';
   ctx.fillStyle = col;
