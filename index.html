@@ -6,13 +6,13 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
 <meta http-equiv="Pragma" content="no-cache" />
 <meta http-equiv="Expires" content="0" />
-<meta name="apanel-build" content="2026-11-18-sunlit-glass-v4-grid" />
+<meta name="apanel-build" content="2026-11-18-sunlit-glass-v5-markers" />
 <!-- 手机（iOS）加到主屏幕后按“应用”方式全屏运行 -->
 <meta name="apple-mobile-web-app-capable" content="yes" />
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
 <meta name="apple-mobile-web-app-title" content="A股智研" />
 <meta name="mobile-web-app-capable" content="yes" />
-<meta name="app-version" content="20261118-sunlit-glass-v4-grid" />
+<meta name="app-version" content="20261118-sunlit-glass-v5-markers" />
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
 <meta http-equiv="Pragma" content="no-cache" />
 <meta http-equiv="Expires" content="0" />
@@ -4291,7 +4291,7 @@ function drawKlineTradeMarks(ctx, candles, ind, o, xOf, yOf, plot) {
       ? Math.min(plot.top + plot.height - bh, yOf(c.low) + (live ? 6 : 4))
       : Math.max(plot.top + 1, yOf(c.high) - bh - (live ? 6 : 4));
     ctx.save();
-    ctx.fillStyle = live ? color : 'rgba(255,255,255,.94)';
+    ctx.fillStyle = live ? color : (buy ? 'rgba(255,228,233,.96)' : 'rgba(222,248,240,.96)');
     ctx.strokeStyle = color;
     ctx.lineWidth = live ? 1.7 : 1;
     ctx.fillRect(x - bw / 2, y, bw, bh);
@@ -9171,7 +9171,7 @@ function drawMinuteTradeMarks(ctx, marks, xyOf, plot, opt) {
       ? Math.min(plot.top + plot.height - bh, pos.y + (live ? away + 5 : away))
       : Math.max(plot.top + 1, pos.y - bh - (live ? away + 5 : away));
     ctx.save();
-    ctx.fillStyle = live ? color : 'rgba(255,255,255,.94)';
+    ctx.fillStyle = live ? color : (buy ? 'rgba(255,228,233,.96)' : 'rgba(222,248,240,.96)');
     ctx.strokeStyle = color;
     ctx.lineWidth = live ? 1.6 : 1;
     ctx.fillRect(x - bw / 2, y, bw, bh);
