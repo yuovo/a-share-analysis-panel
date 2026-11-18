@@ -6,21 +6,21 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
 <meta http-equiv="Pragma" content="no-cache" />
 <meta http-equiv="Expires" content="0" />
-<meta name="apanel-build" content="2026-11-18-liquid-glass-v2" />
+<meta name="apanel-build" content="2026-11-18-sunlit-glass-v3" />
 <!-- 手机（iOS）加到主屏幕后按“应用”方式全屏运行 -->
 <meta name="apple-mobile-web-app-capable" content="yes" />
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
 <meta name="apple-mobile-web-app-title" content="A股智研" />
 <meta name="mobile-web-app-capable" content="yes" />
-<meta name="app-version" content="20261118-liquid-glass-v2" />
+<meta name="app-version" content="20261118-sunlit-glass-v3" />
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
 <meta http-equiv="Pragma" content="no-cache" />
 <meta http-equiv="Expires" content="0" />
-<meta name="theme-color" content="#0b0712" />
+<meta name="theme-color" content="#eef6fa" />
 <meta name="format-detection" content="telephone=no" />
 <link rel="apple-touch-icon" href="apple-touch-icon.png" />
 <link rel="icon" href="favicon-64.png" />
-<title>A股策略终端 · 极夜研究工作台</title>
+<title>A股策略终端 · 晴空研究工作台</title>
 <style>
 /* ============================================================
    全局配色（深色金融风格）
@@ -1877,6 +1877,296 @@ table.tbl th{
   body::before,body::after,.panel.page-on,.panel.page-on::after,
   .panel.page-on>*,.price.number-tick,.glass-pressed{animation:none !important;}
   .panel,.panel:hover,.card,.card:hover,.btn,.btn:active,.side-nav .navbar a,.nav-trigger,.chip,.seg-btn{transform:none !important;transition:none !important;}
+}
+
+/* ============================================================
+   2026-11-18 · Sunlit Glass
+   明亮的晴空毛玻璃主题：白蓝雾面、柔和彩光、清晰行情层级。
+   ============================================================ */
+:root{
+  color-scheme:light;
+  --bg:#eef6fa;
+  --bg2:#f8fbfc;
+  --panel:#f7fbfd;
+  --panel2:#ffffff;
+  --line:#d4e2e9;
+  --line2:#b9cfd9;
+  --text:#172a36;
+  --muted:#627987;
+  --dim:#8397a2;
+  --red:#d94762;
+  --green:#108f70;
+  --gold:#ad721a;
+  --orange:#c85f21;
+  --blue:#177da8;
+  --red-bg:rgba(217,71,98,.09);
+  --green-bg:rgba(16,143,112,.09);
+  --gold-bg:rgba(173,114,26,.1);
+  --orange-bg:rgba(200,95,33,.09);
+  --blue-bg:rgba(23,125,168,.09);
+  --glass-edge:rgba(255,255,255,.88);
+  --glass-edge-strong:rgba(255,255,255,.98);
+  --glass-fill:rgba(255,255,255,.58);
+  --glass-fill-soft:rgba(255,255,255,.42);
+  --glass-shadow:0 22px 56px rgba(62,96,113,.14);
+  --glass-blur:blur(28px) saturate(155%);
+}
+html{background:#eef6fa;}
+body{
+  background:#f4f9fb;
+  color:var(--text);
+}
+.stick{
+  background:
+    linear-gradient(180deg,rgba(255,255,255,.82),rgba(243,250,252,.68));
+  border-bottom-color:rgba(255,255,255,.88);
+  -webkit-backdrop-filter:blur(26px) saturate(150%);
+  backdrop-filter:blur(26px) saturate(150%);
+  box-shadow:0 10px 30px rgba(74,107,123,.09);
+}
+.stick .navbar a{
+  color:#607784;
+  background:rgba(255,255,255,.5);
+  border-color:rgba(198,219,228,.52);
+}
+.stick .navbar a:hover,.stick .navbar a.on{
+  color:#0d6d91;
+  border-color:rgba(67,168,201,.28);
+  background:rgba(222,246,253,.76);
+}
+body::before{
+  background:
+    radial-gradient(34% 44% at 8% 12%,rgba(255,194,174,.72),transparent 72%),
+    radial-gradient(34% 42% at 88% 7%,rgba(133,211,243,.68),transparent 72%),
+    radial-gradient(33% 39% at 78% 88%,rgba(131,223,197,.5),transparent 72%),
+    radial-gradient(27% 35% at 23% 86%,rgba(255,219,159,.45),transparent 72%),
+    linear-gradient(145deg,#f7fbfd 0%,#eaf5f9 48%,#f7fbfa 100%);
+  filter:blur(24px);
+  opacity:1;
+}
+body::after{
+  background:
+    radial-gradient(circle at 42% 38%,rgba(66,182,222,.2),transparent 38%),
+    radial-gradient(circle at 62% 66%,rgba(255,174,153,.17),transparent 54%);
+  opacity:.62;
+}
+
+.topbar{
+  border-color:rgba(255,255,255,.92);
+  background:
+    linear-gradient(112deg,rgba(255,255,255,.82),rgba(255,255,255,.58) 50%,rgba(228,247,252,.68));
+  box-shadow:0 18px 42px rgba(66,102,120,.14),inset 0 1px rgba(255,255,255,1),inset 0 -1px rgba(121,157,174,.08);
+}
+.topbar::before{
+  z-index:0;
+  background:linear-gradient(115deg,rgba(255,255,255,.62),transparent 27%,transparent 70%,rgba(142,216,239,.13));
+}
+.topbar>*{position:relative;z-index:1;}
+.topbar::after{
+  z-index:2;
+  background:linear-gradient(90deg,transparent,rgba(52,169,207,.56),rgba(255,181,92,.5),transparent);
+}
+.page-eyebrow{color:#78909c;}
+.page-context strong{color:#1a303c;}
+.topbar .clock,.src-line{color:#5e7582;}
+.src-line .dot-live{background:#149776;}
+.side-brand-copy h1{color:#18303b;}
+.side-brand-copy p{color:#78909b;}
+.logo,.side-logo{
+  color:#18323e;
+  background:linear-gradient(145deg,#ffd2bc 0%,#ff9f9f 43%,#86d9f1 100%);
+  border-color:rgba(255,255,255,.92);
+  box-shadow:0 10px 28px rgba(235,134,143,.18),0 0 24px rgba(87,190,224,.12);
+}
+
+.side-nav{
+  border-right-color:rgba(255,255,255,.82);
+  background:
+    linear-gradient(155deg,rgba(255,255,255,.82),rgba(248,252,254,.64) 48%,rgba(229,244,249,.7));
+  box-shadow:22px 0 55px rgba(75,106,123,.14),inset -1px 0 rgba(255,255,255,.95),inset -1px 0 rgba(122,156,173,.05);
+}
+.side-nav::after{
+  background:linear-gradient(90deg,transparent,rgba(64,174,210,.56),rgba(255,174,91,.44),transparent);
+}
+.side-brand{border-bottom-color:rgba(138,169,183,.2);}
+.side-collapse{
+  border-color:rgba(148,178,191,.24);
+  background:rgba(255,255,255,.55);
+  color:#6c8390;
+}
+.side-collapse:hover{color:#126f99;border-color:rgba(42,160,201,.35);background:rgba(229,247,253,.86);}
+.side-nav .navbar a{
+  color:#5d7380;
+  border-color:rgba(255,255,255,.38);
+  background:rgba(255,255,255,.16);
+}
+.side-nav .navbar a:hover{
+  color:#18313d;
+  border-color:rgba(255,255,255,.88);
+  background:rgba(255,255,255,.68);
+}
+.side-nav .navbar a.on{
+  color:#0c6d94;
+  border-color:rgba(82,178,213,.3);
+  background:linear-gradient(90deg,rgba(215,243,253,.88),rgba(246,252,254,.68));
+  box-shadow:inset 0 1px rgba(255,255,255,.96),0 7px 20px rgba(69,139,166,.09);
+}
+.side-nav .navbar a.on::before{
+  background:linear-gradient(180deg,#ffb45e,#42b6df);
+  box-shadow:0 0 11px rgba(55,170,213,.45);
+}
+.side-foot{color:#788f9a;border-top-color:rgba(128,161,175,.18);}
+.side-foot i{background:#20b68f;box-shadow:0 0 9px rgba(32,182,143,.38);}
+
+.panel{
+  background:
+    radial-gradient(360px circle at var(--glass-x) var(--glass-y),rgba(255,255,255,.8),transparent 52%),
+    linear-gradient(145deg,rgba(255,255,255,.74),rgba(255,255,255,.48) 54%,rgba(238,250,253,.58));
+  border-color:rgba(255,255,255,.9);
+  box-shadow:0 24px 58px rgba(65,97,113,.14),inset 0 1px rgba(255,255,255,1),inset 0 -1px rgba(119,156,174,.06);
+}
+.panel:hover{
+  border-color:rgba(255,255,255,1);
+  box-shadow:0 29px 68px rgba(58,93,110,.17),inset 0 1px rgba(255,255,255,1),0 0 0 1px rgba(54,166,203,.08);
+}
+.panel.page-on::after{
+  background:linear-gradient(110deg,rgba(58,171,210,0),rgba(52,168,207,.56),rgba(255,183,96,.5),rgba(220,88,111,.25),rgba(58,171,210,0));
+  background-size:280% 100%;
+  opacity:.34;
+}
+.panel-head{border-bottom-color:rgba(119,153,168,.22);}
+.panel-head h2{color:#172e3a;}
+.panel-head h2 .num{
+  color:#0e739c;
+  background:linear-gradient(135deg,rgba(210,242,252,.9),rgba(255,236,207,.72));
+  border-color:rgba(69,168,201,.24);
+}
+
+.card,
+.advice,
+.auction-pick,
+.trade-plan,
+.note,
+.hint-box,
+.risk-box{
+  background:
+    radial-gradient(260px circle at var(--glass-x) var(--glass-y),rgba(255,255,255,.78),transparent 52%),
+    linear-gradient(150deg,rgba(255,255,255,.68),rgba(255,255,255,.42)),
+    rgba(255,255,255,.2);
+  border-color:rgba(255,255,255,.84);
+  box-shadow:0 13px 34px rgba(67,100,118,.1),inset 0 1px rgba(255,255,255,.98);
+}
+.card:hover{
+  background:
+    radial-gradient(280px circle at var(--glass-x) var(--glass-y),rgba(255,255,255,.94),transparent 54%),
+    linear-gradient(150deg,rgba(255,255,255,.8),rgba(246,252,254,.58));
+  border-color:rgba(255,255,255,1);
+  box-shadow:0 18px 42px rgba(61,96,114,.14),inset 0 1px rgba(255,255,255,1),0 0 0 1px rgba(54,166,203,.055);
+}
+.card-title{color:#1b303b;}
+.card-sub{color:#6c818d;}
+.advice.risk{
+  background:
+    radial-gradient(320px circle at var(--glass-x) var(--glass-y),rgba(255,255,255,.72),transparent 50%),
+    linear-gradient(145deg,rgba(255,235,232,.9),rgba(255,248,243,.62));
+  border-color:rgba(231,169,159,.36);
+}
+.advice.opp{
+  background:
+    radial-gradient(320px circle at var(--glass-x) var(--glass-y),rgba(255,255,255,.8),transparent 50%),
+    linear-gradient(145deg,rgba(220,246,253,.9),rgba(247,253,254,.64));
+  border-color:rgba(146,207,227,.34);
+}
+.advice.neutral{background:linear-gradient(145deg,rgba(255,255,255,.7),rgba(240,249,252,.52));border-color:rgba(255,255,255,.88);}
+
+.tag.red{color:#ba2e49;background:rgba(217,71,98,.09);border-color:rgba(217,71,98,.22);}
+.tag.green{color:#08795d;background:rgba(16,143,112,.09);border-color:rgba(16,143,112,.22);}
+.tag.gold{color:#8f6117;background:rgba(173,114,26,.1);border-color:rgba(173,114,26,.22);}
+.tag.orange{color:#aa4a16;background:rgba(200,95,33,.09);border-color:rgba(200,95,33,.22);}
+.tag.blue{color:#0d6d93;background:rgba(23,125,168,.09);border-color:rgba(23,125,168,.22);}
+.tag.gray{color:#6c7f8b;background:rgba(110,138,153,.08);border-color:rgba(113,144,159,.22);}
+.up{color:var(--red);}
+.down{color:var(--green);}
+.gold{color:var(--gold);}
+.orange{color:var(--orange);}
+.blue{color:var(--blue);}
+.muted{color:var(--muted);}
+.dim{color:var(--dim);}
+.price{text-shadow:none;}
+
+.tbl-wrap{
+  background:rgba(255,255,255,.54);
+  border-color:rgba(255,255,255,.84);
+}
+table.tbl th{
+  background:linear-gradient(180deg,rgba(239,248,251,.96),rgba(224,239,245,.92));
+  color:#506975;
+  border-bottom-color:rgba(116,153,169,.22);
+}
+table.tbl td{border-bottom-color:rgba(117,151,166,.17);}
+table.tbl tbody tr:hover{
+  background:linear-gradient(90deg,rgba(201,239,251,.36),rgba(255,239,210,.22));
+  box-shadow:inset 2px 0 rgba(40,157,197,.46);
+}
+table.tbl .code{color:#79909b;}
+table.tbl .name{color:#1b313c;}
+
+.btn{
+  border-color:rgba(157,186,199,.38);
+  background:linear-gradient(180deg,rgba(255,255,255,.8),rgba(239,248,251,.66));
+  color:#213944;
+  box-shadow:0 5px 16px rgba(67,101,119,.08),inset 0 1px rgba(255,255,255,.98);
+}
+.btn:hover{
+  border-color:rgba(52,164,201,.46);
+  color:#0c6c91;
+  background:linear-gradient(180deg,#fff,rgba(228,247,253,.84));
+  box-shadow:0 10px 24px rgba(59,129,155,.13),inset 0 1px #fff;
+}
+.btn.primary{
+  background:
+    linear-gradient(120deg,rgba(255,255,255,.52),transparent 34%),
+    linear-gradient(120deg,#32a7cf 0%,#67cce4 100%);
+  border-color:rgba(255,255,255,.9);
+  color:#083747;
+  box-shadow:0 10px 25px rgba(43,150,186,.2),inset 0 1px rgba(255,255,255,.8);
+}
+.btn.primary:hover{color:#062c3a;border-color:#fff;box-shadow:0 13px 30px rgba(43,150,186,.25),0 0 0 3px rgba(74,184,218,.1);}
+.input,select.input{
+  border-color:rgba(145,178,192,.38);
+  background:rgba(255,255,255,.72);
+  color:#1b323e;
+}
+.input:focus,select.input:focus{border-color:rgba(45,156,194,.64);box-shadow:0 0 0 3px rgba(64,169,203,.1);}
+.nav-trigger{
+  color:#176f96;
+  border-color:rgba(255,255,255,.9);
+  background:linear-gradient(145deg,rgba(255,255,255,.82),rgba(216,243,252,.62));
+}
+.nav-trigger:hover{color:#075f86;border-color:rgba(255,255,255,1);background:linear-gradient(145deg,#fff,rgba(219,245,253,.88));}
+.nav-overlay{background:rgba(73,105,120,.18);}
+.note,.hint-box,.risk-box{border-color:rgba(255,255,255,.82);background:rgba(255,255,255,.56);}
+.auction-pick,.trade-plan,.auction-decision{border-color:rgba(255,255,255,.86);}
+::-webkit-scrollbar-thumb{background:#b8ced8;border:2px solid #eef6fa;border-radius:9px;}
+::selection{background:rgba(86,192,222,.23);color:#10242f;}
+
+@supports not ((backdrop-filter:blur(1px)) or (-webkit-backdrop-filter:blur(1px))){
+  .topbar,.side-nav,.panel,.card,.advice,.tbl-wrap,.btn{background-color:rgba(249,252,253,.96);}
+}
+
+@media (max-width:760px){
+  body{
+    background:
+      radial-gradient(430px 300px at 0% -4%,rgba(255,193,173,.48),transparent 66%),
+      radial-gradient(400px 280px at 100% 0%,rgba(137,213,242,.52),transparent 66%),
+      linear-gradient(160deg,#f7fbfd,#edf7fa 54%,#f7fbfa);
+  }
+  body::before{filter:blur(18px);opacity:.92;}
+  body::after{opacity:.42;}
+  .topbar{border-color:rgba(255,255,255,.95);background:linear-gradient(120deg,rgba(255,255,255,.86),rgba(239,249,252,.72));}
+  .side-nav{
+    background:linear-gradient(155deg,rgba(255,255,255,.9),rgba(240,249,252,.78));
+  }
 }
 </style>
 </head>
