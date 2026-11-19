@@ -6,13 +6,13 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
 <meta http-equiv="Pragma" content="no-cache" />
 <meta http-equiv="Expires" content="0" />
-<meta name="apanel-build" content="2026-11-20-monochrome-responsive" />
+<meta name="apanel-build" content="2026-11-20-monochrome-kline-clean-v2" />
 <!-- 手机（iOS）加到主屏幕后按“应用”方式全屏运行 -->
 <meta name="apple-mobile-web-app-capable" content="yes" />
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
 <meta name="apple-mobile-web-app-title" content="A股智研" />
 <meta name="mobile-web-app-capable" content="yes" />
-<meta name="app-version" content="20261120-monochrome-responsive" />
+<meta name="app-version" content="20261120-monochrome-kline-clean-v2" />
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
 <meta http-equiv="Pragma" content="no-cache" />
 <meta http-equiv="Expires" content="0" />
@@ -4610,7 +4610,9 @@ const CLR = {
   blue: '#177da8',
   purple: '#7868ad',
   white: '#2b4652',
-  cross: 'rgba(177,112,24,.48)'
+  cross: 'rgba(177,112,24,.48)',
+  labelBg: 'rgba(255,255,255,.92)',
+  labelText: '#24363e'
 };
 
 /** 基于现有 MACD / KDJ / RSI / 均线数据提取历史与实时买卖信号 */
@@ -9882,18 +9884,20 @@ function drawMinute(cv, m, quote, opt) {
       ctx.arc(x, y, 2.8, 0, Math.PI * 2);
       ctx.fillStyle = color;
       ctx.fill();
-      ctx.strokeStyle = 'rgba(9,13,20,.9)';
+      ctx.strokeStyle = CLR.labelBg;
       ctx.lineWidth = 1;
       ctx.stroke();
       if (!label) return;
       ctx.font = 'bold 10.5px "Microsoft YaHei",sans-serif';
       ctx.textAlign = 'center';
       const ty = isTop ? y - 7 : y + 15;
-      const tw2 = ctx.measureText(label).width;
-      ctx.fillStyle = 'rgba(9,14,20,.78)';
-      ctx.fillRect(clamp(x - tw2 / 2 - 3, padL, padL + plotW), ty - 9, tw2 + 6, 12);
+      const tx = clamp(x, padL + 12, padL + plotW - 12);
+      ctx.lineJoin = 'round';
+      ctx.lineWidth = 3;
+      ctx.strokeStyle = CLR.labelBg;
+      ctx.strokeText(label, tx, ty);
       ctx.fillStyle = color;
-      ctx.fillText(label, clamp(x, padL + tw2 / 2 + 3, padL + plotW - tw2 / 2 - 3), ty);
+      ctx.fillText(label, tx, ty);
       ctx.textAlign = 'left';
     };
     ex.tops.forEach((t, k) => {
@@ -9959,10 +9963,12 @@ function drawMinute(cv, m, quote, opt) {
       (Number.isFinite(p.avg) ? '  均' + fmtP(p.avg) : '') +
       ((p.volume || 0) > 0 ? '  量' + fmtVol(p.volume * volUnit) : '');
     ctx.font = '11px Consolas, Menlo, monospace';
-    const iw = ctx.measureText(info).width + 12;
-    ctx.fillStyle = 'rgba(9,13,20,.9)';
-    ctx.fillRect(padL, 0, iw, 18);
-    ctx.fillStyle = CLR.white;
+    ctx.textAlign = 'left';
+    ctx.lineJoin = 'round';
+    ctx.lineWidth = 3;
+    ctx.strokeStyle = CLR.labelBg;
+    ctx.strokeText(info, padL + 6, 13);
+    ctx.fillStyle = CLR.labelText;
     ctx.fillText(info, padL + 6, 13);
   }
   return { extremes: ex, prevClose: prevClose, last: lastP.price, trades: tradeSignals };
@@ -17346,7 +17352,9 @@ if (document.readyState === 'loading') {
       blue: '#526a74',
       purple: '#77746e',
       white: '#20282b',
-      cross: 'rgba(24,28,29,.33)'
+      cross: 'rgba(24,28,29,.33)',
+      labelBg: 'rgba(255,255,255,.94)',
+      labelText: '#21343d'
     },
     dark: {
       grid: 'rgba(255,255,255,.12)',
@@ -17358,7 +17366,9 @@ if (document.readyState === 'loading') {
       blue: '#a4b8be',
       purple: '#b3b1aa',
       white: '#eef0ed',
-      cross: 'rgba(255,255,255,.34)'
+      cross: 'rgba(255,255,255,.34)',
+      labelBg: 'rgba(18,20,20,.9)',
+      labelText: '#eef0ed'
     }
   };
 
