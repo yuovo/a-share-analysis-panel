@@ -6,13 +6,13 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
 <meta http-equiv="Pragma" content="no-cache" />
 <meta http-equiv="Expires" content="0" />
-<meta name="apanel-build" content="2026-11-20-monochrome-kline-clean-v2" />
+<meta name="apanel-build" content="2026-11-21-restday-performance" />
 <!-- 手机（iOS）加到主屏幕后按“应用”方式全屏运行 -->
 <meta name="apple-mobile-web-app-capable" content="yes" />
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
 <meta name="apple-mobile-web-app-title" content="A股智研" />
 <meta name="mobile-web-app-capable" content="yes" />
-<meta name="app-version" content="20261120-monochrome-kline-clean-v2" />
+<meta name="app-version" content="20261121-restday-performance" />
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
 <meta http-equiv="Pragma" content="no-cache" />
 <meta http-equiv="Expires" content="0" />
@@ -633,6 +633,24 @@ table.tbl tbody tr.clickable:hover{background:rgba(240,183,63,.10);}
 .analysis-head{padding-top:0;}
 .analysis-head h3{margin:0;font-size:16px;}
 .analysis-head h3 .num{display:inline-flex;align-items:center;justify-content:center;min-width:34px;height:22px;margin-right:8px;padding:0 6px;border-radius:7px;background:var(--gold-bg);color:var(--gold);font-size:11px;border:1px solid rgba(240,183,63,.35);}
+
+/* ---------- 每日复盘：七步收盘框架 ---------- */
+.review-overview{margin-bottom:12px;}
+.review-overview .card{margin:0;min-width:0;}
+.review-step{margin:0;min-width:0;}
+.review-step .card-head{align-items:flex-start;gap:10px;}
+.review-step-no{display:inline-flex;align-items:center;justify-content:center;min-width:30px;height:22px;margin-right:7px;padding:0 6px;border-radius:7px;background:var(--gold-bg);border:1px solid rgba(240,183,63,.32);color:var(--gold);font:800 11px/1 Consolas,Menlo,monospace;vertical-align:middle;}
+.review-step .list{gap:6px;}
+.review-step .li{padding:5px 0;align-items:flex-start;}
+.review-step .zchip{margin:2px 5px 2px 0;}
+.review-plan{margin-top:12px;}
+@media (max-width:760px){
+  #sec-review .review-overview{grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:8px;}
+  #sec-review .review-overview .card{padding:9px;min-width:0;}
+  #sec-review .review-overview .card-title{font-size:12px;}
+  #sec-review .review-overview .price{font-size:16px!important;}
+  #sec-review .review-overview .card-sub{font-size:10px;line-height:1.4;}
+}
 
 /* ---------- ② 早盘竞价选股 ---------- */
 .auction-hero{position:relative;overflow:hidden;}
@@ -2630,6 +2648,67 @@ body>main{max-width:1800px;margin-right:auto;}
   html[data-theme] .panel,
   html[data-theme] .card{transition:none!important;}
 }
+
+/* 性能优先：只保留大面积玻璃，取消持续动画与多层实时模糊。 */
+html[data-theme] .stick,
+html[data-theme] .topbar{
+  -webkit-backdrop-filter:blur(18px) saturate(112%);
+  backdrop-filter:blur(18px) saturate(112%);
+  box-shadow:0 8px 24px rgba(0,0,0,.07);
+}
+html[data-theme] .side-nav{
+  -webkit-backdrop-filter:blur(20px) saturate(112%);
+  backdrop-filter:blur(20px) saturate(112%);
+}
+html[data-theme] .panel{
+  -webkit-backdrop-filter:blur(14px) saturate(108%);
+  backdrop-filter:blur(14px) saturate(108%);
+  box-shadow:0 14px 36px rgba(20,24,26,.09),inset 0 1px rgba(255,255,255,.11);
+  will-change:auto;
+}
+html[data-theme] .panel:hover{transform:none;box-shadow:0 16px 38px rgba(20,24,26,.1),inset 0 1px rgba(255,255,255,.12);}
+html[data-theme] .card,
+html[data-theme] .advice,
+html[data-theme] .auction-pick,
+html[data-theme] .trade-plan,
+html[data-theme] .tbl-wrap,
+html[data-theme] table.tbl th,
+html[data-theme] .btn,
+html[data-theme] .side-nav .navbar a,
+html[data-theme] .nav-trigger,
+html[data-theme] .chip,
+html[data-theme] .seg-btn{
+  -webkit-backdrop-filter:none!important;
+  backdrop-filter:none!important;
+}
+html[data-theme="light"] .card,
+html[data-theme="light"] .advice{
+  background-color:rgba(255,255,255,.74);
+}
+html[data-theme="dark"] .card,
+html[data-theme="dark"] .advice{
+  background-color:rgba(22,24,24,.82);
+}
+body::before,
+body::after,
+.topbar::after,
+.panel.page-on::after,
+.auction-hero::after,
+.side-nav .navbar a.on::before,
+.dot-live.load{animation:none!important;}
+.panel.page-on>*{animation-duration:.34s;}
+.price.number-tick{animation-duration:.24s;}
+@media (max-width:1024px){
+  html[data-theme] body::before,
+  html[data-theme] body::after{
+    filter:blur(12px);
+  }
+  html[data-theme] .panel{
+    -webkit-backdrop-filter:blur(10px);
+    backdrop-filter:blur(10px);
+  }
+  html[data-theme] .panel.page-on>*{animation-duration:.28s;}
+}
 </style>
 </head>
 
@@ -2680,9 +2759,9 @@ body>main{max-width:1800px;margin-right:auto;}
     <a href="#sec-kline"><svg class="nav-ico" aria-hidden="true"><use href="#ni-kline"></use></svg><span>⑥ K线 · 买卖分析</span></a>
     <a href="#sec-flow"><svg class="nav-ico" aria-hidden="true"><use href="#ni-flow"></use></svg><span>⑦ 资金流向</span></a>
     <a href="#sec-dragon"><svg class="nav-ico" aria-hidden="true"><use href="#ni-hot"></use></svg><span>⑧ 热点·龙虎榜·异动</span></a>
-    <a href="#sec-rank"><svg class="nav-ico" aria-hidden="true"><use href="#ni-rank"></use></svg><span>⑨ 每日排行榜</span></a>
-    <a href="#sec-pick"><svg class="nav-ico" aria-hidden="true"><use href="#ni-pick"></use></svg><span>⑩ 选股推荐</span></a>
-    <a href="#sec-review"><svg class="nav-ico" aria-hidden="true"><use href="#ni-review"></use></svg><span>⑪ 每日复盘</span></a>
+    <a href="#sec-review"><svg class="nav-ico" aria-hidden="true"><use href="#ni-review"></use></svg><span>⑨ 每日复盘</span></a>
+    <a href="#sec-rank"><svg class="nav-ico" aria-hidden="true"><use href="#ni-rank"></use></svg><span>⑩ 每日排行榜</span></a>
+    <a href="#sec-pick"><svg class="nav-ico" aria-hidden="true"><use href="#ni-pick"></use></svg><span>⑪ 选股推荐</span></a>
     <a href="#sec-etf"><svg class="nav-ico" aria-hidden="true"><use href="#ni-etf"></use></svg><span>⑫ ETF 专区</span></a>
     <a href="#sec-method"><svg class="nav-ico" aria-hidden="true"><use href="#ni-method"></use></svg><span>⑬ 交易方法</span></a>
     <a href="#sec-calendar"><svg class="nav-ico" aria-hidden="true"><use href="#ni-calendar"></use></svg><span>⑭ 财经日历</span></a>
@@ -2739,7 +2818,7 @@ body>main{max-width:1800px;margin-right:auto;}
           <div class="list">
 <div class="li"><span class="dot gold"></span><span><b>搜标的（⑥）</b>：搜索框支持中文名（贵州茅台）、拼音首字母（gzmt）、代码片段（5103）、主题＋品种（白酒ETF / 券商ETF）；下拉里点一下就能出 K 线与买卖分析。</span></div>
 <div class="li"><span class="dot blue"></span><span><b>最近搜索</b>：⑥ 搜索框下方保留最近 10 个标的；点标签重新载入，点 × 删除单个，右侧「清空」全部清除。历史保存在本机浏览器。</span></div>
-<div class="li"><span class="dot blue"></span><span><b>点表格行＝载入</b>：⑨排行榜、⑧热点龙虎榜、④连板梯队、⑫ETF 榜、⑤自选股，点任意一行都会把它载入⑥，K线与买卖分析会在同一页同步生成。</span></div>
+<div class="li"><span class="dot blue"></span><span><b>点表格行＝载入</b>：⑩排行榜、⑧热点龙虎榜、④连板梯队、⑫ETF 榜、⑤自选股，点任意一行都会把它载入⑥，K线与买卖分析会在同一页同步生成。</span></div>
 <div class="li"><span class="dot gold"></span><span><b>①指数分时随点随换</b>：①A股大盘 的 8 张指数卡片，点任意一张就把下面那张分时图切成它；右上角「<b>载入 K 线图分析</b>」会把当前这个指数送进 ⑥ 做日线技术分析。</span></div>
 <div class="li"><span class="dot gold"></span><span><b>早盘竞价选股（③）</b>：每个交易日 09:25 生成一份固定定稿榜，手机和电脑读取同一份排名与分数。表格中的股票可直接载入⑥看K线与买卖结论。</span></div>
 <div class="li"><span class="dot blue"></span><span><b>未来30天财经日历（⑭）</b>：按日期、星期列出国内外重要事件，标注确认/预计/待官宣、催化板块和个股观察；点个股标签可直接载入⑥的日线K线。</span></div>
@@ -2919,7 +2998,7 @@ body>main{max-width:1800px;margin-right:auto;}
       </div>
       <div class="list" id="auctionPlans"></div>
     </div>
-    <div class="card">
+    <div class="card" id="auctionTrackingCard">
       <div class="card-head">
         <div class="card-title">上一交易日优选 <span class="auction-date-stamp" id="auctionTrackDateLabel">--</span></div>
         <div class="card-sub" id="auctionTrackSub">下一交易日 09:25 验证；手机和电脑使用同一份定稿</div>
@@ -3398,10 +3477,72 @@ body>main{max-width:1800px;margin-right:auto;}
     </div>
   </section>
 
-<!-- ===================== ⑨ 每日排行榜 ===================== -->
+<!-- ===================== ⑨ 每日复盘 ===================== -->
+  <section class="panel" id="sec-review">
+    <div class="panel-head">
+      <h2><span class="num">⑨</span>每日复盘</h2>
+      <span class="tag blue">收盘后七步复盘</span>
+      <span class="tag gold">情绪 → 梯队 → 板块 → 资金 → 亏钱效应 → 重点票 → 计划</span>
+      <span class="tag gray" id="reviewUpdated">--</span>
+    </div>
+    <div class="grid g3 review-overview" id="reviewOverview"></div>
+    <div class="grid g2">
+      <div class="card review-step">
+        <div class="card-head">
+          <div class="card-title"><span class="review-step-no">01</span>整体情绪</div>
+          <span class="tag gray" id="reviewSentimentTag">读取中</span>
+        </div>
+        <div class="list" id="reviewSummary"></div>
+      </div>
+      <div class="card review-step">
+        <div class="card-head">
+          <div class="card-title"><span class="review-step-no">02</span>连板梯队</div>
+          <span class="tag gray" id="reviewLadderTag">读取中</span>
+        </div>
+        <div class="list" id="reviewLadder"></div>
+      </div>
+      <div class="card review-step">
+        <div class="card-head">
+          <div class="card-title"><span class="review-step-no">03</span>板块结构</div>
+          <span class="tag gray" id="reviewSectorTag">读取中</span>
+        </div>
+        <div class="list" id="reviewSector"></div>
+      </div>
+      <div class="card review-step">
+        <div class="card-head">
+          <div class="card-title"><span class="review-step-no">04</span>资金流向</div>
+          <span class="tag gray" id="reviewFlowTag">读取中</span>
+        </div>
+        <div class="list" id="reviewFlow"></div>
+      </div>
+      <div class="card review-step">
+        <div class="card-head">
+          <div class="card-title"><span class="review-step-no">05</span>亏钱效应</div>
+          <span class="tag gray" id="reviewLossTag">读取中</span>
+        </div>
+        <div class="list" id="reviewLoss"></div>
+      </div>
+      <div class="card review-step">
+        <div class="card-head">
+          <div class="card-title"><span class="review-step-no">06</span>标记重点票</div>
+          <span class="tag gray" id="reviewKeyTag">读取中</span>
+        </div>
+        <div class="list" id="reviewKey"></div>
+      </div>
+    </div>
+    <div class="card review-step review-plan">
+      <div class="card-head">
+        <div class="card-title"><span class="review-step-no">07</span>次日观察与执行计划</div>
+        <span class="tag gold" id="reviewPlanTag">先验证，后出手</span>
+      </div>
+      <div class="list" id="reviewPlan"></div>
+    </div>
+  </section>
+
+<!-- ===================== ⑩ 每日排行榜 ===================== -->
   <section class="panel" id="sec-rank">
     <div class="panel-head">
-<h2><span class="num">⑨</span>每日排行榜（全市场实时）</h2>
+<h2><span class="num">⑩</span>每日排行榜（全市场实时）</h2>
       <span class="tag blue">涨幅 · 跌幅 · 成交额 · 换手 · 行业 · 概念</span>
       <div class="spacer"></div>
       <span class="hint" id="rankHint">--</span>
@@ -3480,10 +3621,10 @@ body>main{max-width:1800px;margin-right:auto;}
     </div>
   </section>
 
-<!-- ===================== ⑩ 选股推荐 ===================== -->
+<!-- ===================== ⑪ 选股推荐 ===================== -->
   <section class="panel" id="sec-pick">
     <div class="panel-head">
-<h2><span class="num">⑩</span>选股推荐 · 能不能买</h2>
+<h2><span class="num">⑪</span>选股推荐 · 能不能买</h2>
       <span class="tag orange">规则判定 · 非荐股</span>
       <span class="tag blue">给出理由、买入时机、止损与盈亏比</span>
       <div class="spacer"></div>
@@ -3524,32 +3665,6 @@ body>main{max-width:1800px;margin-right:auto;}
     </div>
     <div id="recoDetail" style="margin-top:12px;"></div>
     <div id="recoSkipped" style="margin-top:12px;"></div>
-  </section>
-
-<!-- ===================== ⑪ 每日复盘 ===================== -->
-  <section class="panel" id="sec-review">
-    <div class="panel-head">
-<h2><span class="num">⑪</span>每日复盘</h2>
-      <span class="tag blue">基于实时全市场数据自动生成</span>
-    </div>
-    <div class="grid g2">
-      <div class="card">
-        <div class="card-head"><div class="card-title">今日市场总结</div></div>
-        <div class="list" id="reviewSummary"></div>
-      </div>
-      <div class="card">
-        <div class="card-head"><div class="card-title">强势板块与次日关注</div></div>
-        <div class="list" id="reviewOpportunity"></div>
-      </div>
-      <div class="card">
-        <div class="card-head"><div class="card-title">市场风险提示</div></div>
-        <div class="list" id="reviewRisk"></div>
-      </div>
-      <div class="card">
-        <div class="card-head"><div class="card-title">操作纪律清单</div></div>
-        <div class="list" id="reviewDiscipline"></div>
-      </div>
-    </div>
   </section>
 
 <!-- ===================== ⑤ 自选股 ===================== -->
@@ -7525,54 +7640,260 @@ function rankCls(i) { return i === 0 ? 'top1' : i === 1 ? 'top2' : i === 2 ? 'to
 
 /* ---------------- 复盘 ---------------- */
 
+function reviewSetTag(id, text, cls) {
+  const el = $(id);
+  if (!el) return;
+  el.className = 'tag ' + (cls || 'gray');
+  el.textContent = text;
+}
+
+function reviewLimitCount(name, kind) {
+  const source = FLOW.boardLimit && (kind === 'concept' ? FLOW.boardLimit.concept : FLOW.boardLimit.industry);
+  if (!source || !name) return NaN;
+  if (Number.isFinite(Number(source[name]))) return Number(source[name]);
+  const target = swBoardKey(name);
+  const key = Object.keys(source).filter((x) => swBoardKey(x) === target)[0];
+  return key ? Number(source[key]) : NaN;
+}
+
+function reviewStockChip(code, name, label, value, cls) {
+  if (!code) return '';
+  return '<span class="zchip" data-code="' + esc(code) + '" data-name="' + esc(name || codeName(code) || '') + '">' +
+    '<span>' + esc(name || codeName(code) || dispCode(code)) + '</span>' +
+    '<span class="zc">' + esc(dispCode(code)) + '</span>' +
+    (label ? '<span class="zf ' + (cls || '') + '">' + esc(label) + '</span>' : '') +
+    (value ? '<span class="zf ' + (cls || '') + '">' + esc(value) + '</span>' : '') +
+    '</span>';
+}
+
+async function hydrateReview() {
+  if (REVIEW.loading) return;
+  const now = Date.now();
+  const tasks = [];
+  if (!ZT.data && now - REVIEW.ztAt > 120000) {
+    REVIEW.ztAt = now;
+    tasks.push(loadZtData(false).catch(() => null));
+  }
+  if (DATA.snapshot && !FLOW.sample.length && now - REVIEW.flowAt > 300000) {
+    REVIEW.flowAt = now;
+    tasks.push(loadFundFlow(false).catch(() => null));
+  }
+  if ((!(DATA.boards.industry || []).length || !(DATA.boards.concept || []).length) && now - REVIEW.boardAt > 180000) {
+    REVIEW.boardAt = now;
+    tasks.push(refreshBoards());
+  }
+  if (!tasks.length) return;
+  REVIEW.loading = true;
+  try {
+    await Promise.allSettled(tasks);
+    if (FLOW.sample.length && !FLOW.map) {
+      await ensureIndustryMap().then(() => rebuildFlowBoards()).catch(() => {});
+    }
+  } finally {
+    REVIEW.loading = false;
+  }
+  if (ACTIVE_SECTION === 'sec-review') renderReview();
+}
+
 function renderReview() {
   const snap = DATA.snapshot;
   const stats = snap ? snap.stats : null;
   const idx = ['sh000001', 'sz399001', 'sz399006', 'sh000688'].map((c) => DATA.quotes[c]).filter(Boolean);
+  const ztData = ZT.data;
+  const zt = ztData && Array.isArray(ztData.zt) ? ztData.zt : [];
+  const zb = ztData && Array.isArray(ztData.zb) ? ztData.zb : [];
+  const dt = ztData && Array.isArray(ztData.dt) ? ztData.dt : [];
+  const yzt = ztData && Array.isArray(ztData.yzt) ? ztData.yzt : [];
+  const marketCtx = ztData ? limitScanMarketContext() : null;
+  const tempInfo = marketTemperature(stats, DATA.quotes['sh000001'], shMacdInfo());
+  const temp = tempInfo && Number.isFinite(tempInfo.value) ? tempInfo.value : NaN;
+  const limitUpCount = zt.length || (stats && Number(stats.limitUp)) || 0;
+  const limitDownCount = dt.length || (stats && Number(stats.limitDown)) || 0;
+  const breakRate = (zt.length + zb.length) ? zb.length / (zt.length + zb.length) * 100 :
+    (stats && Number(stats.limitUp) + Number(stats.zhaBan || 0) > 0 ? Number(stats.zhaBan || 0) / (Number(stats.limitUp) + Number(stats.zhaBan || 0)) * 100 : NaN);
+  const effect = stats && Number.isFinite(Number(stats.effect)) ? Number(stats.effect) : NaN;
+  const promote = marketCtx && Number.isFinite(marketCtx.promote) ? marketCtx.promote * 100 : NaN;
+  const maxHeight = marketCtx ? marketCtx.maxHeight : 0;
+
+  let stage = marketCtx ? marketCtx.stage : '';
+  if (!stage) {
+    if (limitDownCount >= 8 || (Number.isFinite(effect) && effect < 35)) stage = '冰点 / 退潮';
+    else if (Number.isFinite(effect) && effect >= 60 && limitDownCount < 4) stage = '发酵';
+    else stage = '分化';
+  }
+  const stageMeta = stage.indexOf('退潮') >= 0 ? { pos: '0–1成', cls: 'green', action: '只允许主线1进2小仓试错；没有主线就空仓。' } :
+    stage.indexOf('高潮') >= 0 ? { pos: '只持筹', cls: 'orange', action: '不新开高位，不接一致加速；已有盈利仓只做减仓和止盈。' } :
+    stage.indexOf('发酵') >= 0 ? { pos: '2–4成', cls: 'red', action: '优先主线前排，重点看2进3、3进4；单票不超过2成。' } :
+    { pos: '0–2成', cls: 'gold', action: '只做主线辨识度前排，等弱转强或分歧回封，不追孤立异动。' };
+
+  const industry = (DATA.boards.industry || []).slice(0, 6).map((x) => Object.assign({}, x, { _kind: 'industry' }));
+  const concept = (DATA.boards.concept || []).slice(0, 6).map((x) => Object.assign({}, x, { _kind: 'concept' }));
+  const rankedBoards = industry.concat(concept).sort((a, b) => {
+    const an = reviewLimitCount(a.name, a._kind);
+    const bn = reviewLimitCount(b.name, b._kind);
+    if (Number.isFinite(an) || Number.isFinite(bn)) return (bn || 0) - (an || 0);
+    return Number(b.chgPct || 0) - Number(a.chgPct || 0);
+  });
+  const mainline = rankedBoards[0] || null;
+  const mainlineCount = mainline ? reviewLimitCount(mainline.name, mainline._kind) : NaN;
+  const riskFlags = [];
+  if (limitDownCount >= 8) riskFlags.push('跌停 ' + limitDownCount + ' 家，亏损扩散');
+  if (Number.isFinite(breakRate) && breakRate >= 45) riskFlags.push('炸板率 ' + fmt(breakRate, 1) + '%，封板质量差');
+  if (Number.isFinite(effect) && effect < 35) riskFlags.push('赚钱效应仅 ' + fmt(effect, 1) + '%');
+
+  const updated = $('reviewUpdated');
+  if (updated) {
+    const dayText = ztData && ztData.day && ztData.day.length === 8
+      ? ztData.day.slice(0, 4) + '-' + ztData.day.slice(4, 6) + '-' + ztData.day.slice(6)
+      : ymdText(bjNow());
+    updated.textContent = '交易日 ' + dayText + ' · 更新 ' + nowHms();
+  }
+
+  const overview = $('reviewOverview');
+  if (overview) {
+    const cards = [
+      ['情绪周期', stage, stageMeta.pos + ' · 温度 ' + (Number.isFinite(temp) ? temp : '--'), stageMeta.cls],
+      ['核心主线', mainline ? mainline.name : '等待板块数据', mainline ? (Number.isFinite(mainlineCount) ? mainlineCount + ' 家涨停 · ' : '') + '领涨 ' + (mainline.leadName || '--') : '加载后自动判断', mainline ? 'gold' : 'gray'],
+      ['风险开关', riskFlags.length ? '收紧' : '可观察', riskFlags[0] || '未触发硬性风险；明日仍执行09:25一票否决', riskFlags.length ? 'orange' : 'blue']
+    ];
+    overview.innerHTML = cards.map((r) => '<div class="card"><div class="card-head"><div class="card-title ' + r[3] + '">' + r[0] +
+      '</div></div><div class="price ' + r[3] + '" style="font-size:22px;line-height:1.25;">' + esc(r[1]) +
+      '</div><div class="card-sub">' + esc(r[2]) + '</div></div>').join('');
+  }
+
+  reviewSetTag('reviewSentimentTag', stage, stageMeta.cls);
   const summary = [];
   if (idx.length) {
     const upN = idx.filter((q) => q.chgPct > 0).length;
-    summary.push('<b>指数：</b>' + idx.map((q) => q.name + ' ' + sign(q.chgPct) + '%').join('，') + '；主要指数' + (upN === idx.length ? '全线收涨' : upN === 0 ? '全线收跌' : '涨跌分化') + '。');
+    summary.push('<b>指数：</b>' + idx.map((q) => esc(q.name) + ' ' + sign(q.chgPct) + '%').join('，') +
+      '；' + (upN === idx.length ? '主要指数全线收涨' : upN === 0 ? '主要指数全线收跌' : '指数涨跌分化') + '。');
   }
   if (stats) {
-    summary.push('<b>涨跌结构：</b>上涨 ' + stats.up + ' 家 / 下跌 ' + stats.down + ' 家 / 平盘 ' + stats.flat + ' 家，涨停 ' + stats.limitUp + ' 家、跌停 ' + stats.limitDown + ' 家，赚钱效应 ' + fmt(stats.effect, 1) + '%。');
-    summary.push('<b>成交：</b>两市合计成交约 ' + fmtAmt(stats.amount) + '，' + (stats.amount > 1.5e12 ? '量能处于高位，资金活跃度较高' : stats.amount > 1e12 ? '量能处于中性水平' : '量能偏低，市场观望情绪较浓') + '。');
+    summary.push('<b>市场宽度：</b>上涨 ' + stats.up + ' 家 / 下跌 ' + stats.down + ' 家 / 平盘 ' + stats.flat +
+      ' 家；涨停 ' + limitUpCount + ' 家，跌停 ' + limitDownCount + ' 家，赚钱效应 ' + fmt(effect, 1) + '%。');
+    summary.push('<b>量能：</b>两市成交约 ' + fmtAmt(stats.amount) + '；' +
+      (stats.amount > 1.5e12 ? '放量，资金参与度高' : stats.amount > 1e12 ? '中性量能，仍是结构性行情' : '缩量，减少无确认追价') + '。');
   }
+  if (Number.isFinite(breakRate)) summary.push('<b>封板质量：</b>炸板率 ' + fmt(breakRate, 1) + '%，' +
+    (breakRate >= 45 ? '封板承接差，次日高开兑现风险大。' : breakRate >= 30 ? '接力一般，只做板块前排。' : '封板质量尚可，但仍需竞价验证。'));
   const macd = shMacdInfo();
-  if (macd) summary.push('<b>上证技术面：</b>日线 DIF ' + fmt(macd.dif, 2) + ' / DEA ' + fmt(macd.dea, 2) + '，' + (macd.dif > macd.dea ? '多头排列' : '空头排列') + '，' + (macd.dif > 0 ? '位于零轴上方' : '位于零轴下方') + '。');
-  if (!summary.length) summary.push('<span class="muted">数据加载中…</span>');
-  $('reviewSummary').innerHTML = liHtml(summary, ['gold', 'blue', 'gold', 'gold']);
+  if (macd) summary.push('<b>指数技术面：</b>上证日线 DIF ' + fmt(macd.dif, 2) + ' / DEA ' + fmt(macd.dea, 2) +
+    '，' + (macd.dif > macd.dea ? '仍偏多' : '仍偏空') + '；技术面只作环境判断，不替代情绪和主线。');
+  if (!summary.length) summary.push('<span class="muted">全市场快照加载中，七步框架会随数据自动补全。</span>');
+  $('reviewSummary').innerHTML = liHtml(summary, ['gold', 'blue', 'orange', 'blue', 'gray']);
 
-  const opp = [];
-  const ind = (DATA.boards.industry || []).slice(0, 3);
-  const con = (DATA.boards.concept || []).slice(0, 3);
-  if (ind.length) opp.push('<b>行业领涨：</b>' + ind.map((b) => b.name + ' ' + sign(b.chgPct) + '%').join('、') + '。');
-  if (con.length) opp.push('<b>概念领涨：</b>' + con.map((b) => b.name + ' ' + sign(b.chgPct) + '%').join('、') + '。');
-  if (ind.length) opp.push('<b>关注方向：</b>资金集中在 ' + ind[0].name + '（领涨股 ' + esc(ind[0].leadName || '--') + '），次日可观察其是否高开承接，若龙头个股分歧加大则注意板块退潮。');
-  opp.push('<b>操作建议：</b>强势板块的回踩低吸优于追高，优先选择板块内量价配合、未出现连续加速的个股。');
-  $('reviewOpportunity').innerHTML = liHtml(opp, ['gold', 'blue', 'gold', 'orange']);
-
-  const risk = [];
-  if (stats) {
-    if (stats.effect < 40) risk.push('<b>赚钱效应偏弱：</b>仅 ' + fmt(stats.effect, 1) + '% 的个股上涨，说明普涨转结构，操作难度上升。');
-    if (stats.limitDown > 8) risk.push('<b>跌停家数偏多：</b>当前跌停 ' + stats.limitDown + ' 家，注意情绪冰点与个股补跌风险。');
-    if (stats.limitUp < 15 && stats.effect > 55) risk.push('<b>涨停家数偏少：</b>虽普涨但缺乏强力主线，注意热点轮动过快。');
-    if (stats.suspended > 20) risk.push('<b>停牌个股：</b>当前有 ' + stats.suspended + ' 只个股无有效报价（停牌/无成交），统计口径已剔除。');
+  reviewSetTag('reviewLadderTag', ztData ? '最高 ' + (maxHeight || '--') + ' 板' : '读取中', ztData ? (maxHeight >= 5 ? 'orange' : 'blue') : 'gray');
+  const ladder = [];
+  if (ztData) {
+    const heights = {};
+    zt.forEach((x) => { const h = Math.max(1, Number(x.lbc) || 1); heights[h] = (heights[h] || 0) + 1; });
+    const top = zt.slice().sort((a, b) => (Number(b.lbc) || 1) - (Number(a.lbc) || 1) ||
+      (Number(a.fbt) || Infinity) - (Number(b.fbt) || Infinity) || (Number(b.amount) || 0) - (Number(a.amount) || 0))[0];
+    ladder.push('<b>梯队：</b>首板 ' + (heights[1] || 0) + ' 只，2板 ' + (heights[2] || 0) + ' 只，3板 ' +
+      (heights[3] || 0) + ' 只，4板以上 ' + Object.keys(heights).filter((h) => Number(h) >= 4).reduce((s, h) => s + heights[h], 0) + ' 只。');
+    ladder.push('<b>最高标：</b>' + (top ? reviewStockChip(ztCode(top), top.n, Math.max(1, Number(top.lbc) || 1) + '板', Number.isFinite(Number(top.zdp)) ? sign(Number(top.zdp), 1) + '%' : '', 'up') : '暂无') +
+      (top && top.hybk ? ' · ' + esc(top.hybk) + ' · 首封 ' + ztTime(top.fbt) : '') + '。');
+    ladder.push('<b>晋级率：</b>' + (Number.isFinite(promote) ? fmt(promote, 1) + '%' : '--') +
+      '；' + (maxHeight >= 5 ? '高度已打开，偏高位的只持筹不追。' : maxHeight >= 3 ? '有中位梯队，重点看3进4能否继续晋级。' : '高度被压缩，先等新主线或弱转强。'));
+  } else {
+    ladder.push('<span class="muted">连板池读取中；完成后自动显示最高标、梯队和晋级率。</span>');
   }
-  const gm = globalModel();
-  if (Number.isFinite(gm.us) && gm.us < -1) risk.push('<b>外围压力：</b>美股均值 ' + sign(gm.us) + '%，注意次日开盘的情绪压制。');
-  if (!risk.length) risk.push('当前未识别到突出的市场级风险信号，但仍需遵守止损纪律，避免重仓单一标的。');
-  $('reviewRisk').innerHTML = liHtml(risk, ['orange', 'red', 'orange', 'blue', 'orange']);
+  $('reviewLadder').innerHTML = liHtml(ladder, ['gold', 'blue', 'orange']);
 
-  const temp = marketTemperature(stats, DATA.quotes['sh000001'], shMacdInfo()).value;
-  const disc = [
-    '<b>仓位纪律：</b>' + (temp >= 60 ? '温度 ' + temp + '，可保持 5-7 成仓位，但需设置移动止盈' : temp >= 40 ? '温度 ' + temp + '，建议 3-5 成仓位，以结构为主' : '温度 ' + temp + '，建议控制在 3 成以内，等待信号'),
-    '<b>止损纪律：</b>单笔亏损达到 -5% 至 -8% 无条件减仓，跌破关键支撑位不抱侥幸心理。',
-    '<b>交易节奏：</b>避免在开盘 15 分钟内追高，等分时均价线走稳后再决策；尾盘 30 分钟是判断次日强弱的重要窗口。',
-    '<b>复盘习惯：</b>每日记录自选股的指标状态与买卖理由，周末回看本周操作，统计胜率与盈亏比。',
-    '<b>风险提示：</b>本页所有结论由实时公开行情数据按固定规则自动计算，不构成投资建议。'
+  const sectorTag = mainline ? (Number.isFinite(mainlineCount) && mainlineCount >= 5 ? '主线较清晰' : '主线待确认') : '读取中';
+  reviewSetTag('reviewSectorTag', sectorTag, mainline && Number.isFinite(mainlineCount) && mainlineCount >= 5 ? 'red' : 'blue');
+  const sectors = [];
+  if (industry.length) {
+    sectors.push('<b>行业领涨：</b>' + industry.slice(0, 3).map((b) => {
+      const n = reviewLimitCount(b.name, 'industry');
+      return esc(b.name) + ' ' + sign(b.chgPct) + '%' + (Number.isFinite(n) ? '（' + n + '家涨停）' : '');
+    }).join('、') + '。');
+  }
+  if (concept.length) {
+    sectors.push('<b>概念领涨：</b>' + concept.slice(0, 3).map((b) => {
+      const n = reviewLimitCount(b.name, 'concept');
+      return esc(b.name) + ' ' + sign(b.chgPct) + '%' + (Number.isFinite(n) ? '（' + n + '家涨停）' : '');
+    }).join('、') + '。');
+  }
+  if (mainline) sectors.push('<b>主线判断：</b>优先观察 ' + esc(mainline.name) + '，领涨股 ' + esc(mainline.leadName || '--') +
+    '；' + (Number.isFinite(mainlineCount) && mainlineCount >= 5 ? '涨停家数已达到主线雏形，但仍要看次日核心是否高开承接。' : '板块有强度但梯队证据不足，只算候选主线，不直接追。'));
+  if (!sectors.length) sectors.push('<span class="muted">行业和概念板块加载中。</span>');
+  $('reviewSector').innerHTML = liHtml(sectors, ['gold', 'blue', 'orange']);
+
+  reviewSetTag('reviewFlowTag', FLOW.sample.length ? '主动资金' : '待计算', FLOW.sample.length ? 'blue' : 'gray');
+  const flowLines = [];
+  if (FLOW.sample.length) {
+    const sampleNet = FLOW.sample.reduce((s, x) => s + (Number(x.net) || 0), 0);
+    const boards = FLOW.boards || [];
+    flowLines.push('<b>样本净额：</b>成交额前 ' + FLOW.sample.length + ' 只合计主动净额 ' + fmtAmt(sampleNet) +
+      (FLOW.asOf ? '，交易日 ' + FLOW.asOf.slice(0, 4) + '-' + FLOW.asOf.slice(4, 6) + '-' + FLOW.asOf.slice(6) : '') + '。');
+    if (boards.length) {
+      const top = boards[0], bottom = boards[boards.length - 1];
+      flowLines.push('<b>板块资金：</b>净流入靠前 ' + esc(top.name) + ' ' + fmtAmt(top.net) +
+        '；净流出靠前 ' + esc(bottom.name) + ' ' + fmtAmt(bottom.net) + '。');
+    } else {
+      flowLines.push('<b>板块资金：</b>个股样本已有，行业映射尚未就绪；可在⑦资金流向页刷新后补齐。');
+    }
+    flowLines.push('<b>怎么用：</b>只把持续净流入当作主线确认的辅助项；单次脉冲不计分，资金流出且板块走弱时不做。');
+  } else {
+    flowLines.push('<span class="muted">打开本页后会自动计算一次资金样本；如果全市场快照尚未就绪，稍后自动重试。</span>');
+    flowLines.push('<b>判断顺序：</b>先看板块资金方向，再看个股主力净额是否持续，不用一笔大单脉冲替代量价和分时承接。');
+  }
+  $('reviewFlow').innerHTML = liHtml(flowLines, ['gold', 'blue', 'orange']);
+
+  const lossScore = (limitDownCount >= 8 ? 2 : limitDownCount >= 4 ? 1 : 0) + (Number.isFinite(breakRate) && breakRate >= 45 ? 2 : Number.isFinite(breakRate) && breakRate >= 35 ? 1 : 0) +
+    (Number.isFinite(effect) && effect < 35 ? 2 : Number.isFinite(effect) && effect < 50 ? 1 : 0);
+  reviewSetTag('reviewLossTag', lossScore >= 4 ? '亏钱效应强' : lossScore >= 2 ? '需谨慎' : '可控', lossScore >= 4 ? 'red' : lossScore >= 2 ? 'orange' : 'blue');
+  const loss = [];
+  loss.push('<b>硬数据：</b>跌停 ' + limitDownCount + ' 家，炸板率 ' + (Number.isFinite(breakRate) ? fmt(breakRate, 1) + '%' : '--') +
+    '，赚钱效应 ' + (Number.isFinite(effect) ? fmt(effect, 1) + '%' : '--') + '。');
+  if (yzt.length) {
+    const yztAvg = yzt.reduce((s, x) => s + (Number(x.zdp) || 0), 0) / yzt.length;
+    const weakHigh = yzt.filter((x) => (Number(x.ylbc) || 1) >= 2 && Number(x.zdp) < 0).length;
+    loss.push('<b>昨日涨停反馈：</b>今日平均 ' + sign(yztAvg) + '%；高位股转绿 ' + weakHigh + ' 只。' +
+      (weakHigh >= 2 ? '高位负反馈在扩散，次日不接高位一致。' : '高位负反馈有限，但仍以竞价确认为准。'));
+  } else {
+    loss.push('<b>昨日涨停反馈：</b>当前接口未补齐昨日涨停池，不把缺失数据当成安全信号。');
+  }
+  loss.push('<b>动作：</b>' + (lossScore >= 4 ? '今天只复盘，不找票；明日先看高标竞价和跌停扩散情况。' :
+    lossScore >= 2 ? '降低仓位，只保留主线前排和最强辨识度，后排跟风一律放弃。' :
+    '亏损扩散可控，但仍只做有主线、有承接的计划内标的。'));
+  $('reviewLoss').innerHTML = liHtml(loss, ['orange', 'blue', 'gold']);
+
+  reviewSetTag('reviewKeyTag', ztData ? '点击可看K线' : '读取中', 'gold');
+  const keyLines = [];
+  if (zt.length) {
+    const leaders = zt.slice().sort((a, b) => (Number(b.lbc) || 1) - (Number(a.lbc) || 1) ||
+      (Number(a.fbt) || Infinity) - (Number(b.fbt) || Infinity)).slice(0, 3);
+    keyLines.push('<b>连板风向标：</b>' + leaders.map((x) => reviewStockChip(ztCode(x), x.n, Math.max(1, Number(x.lbc) || 1) + '板', x.hybk || '', 'gold')).join(' '));
+  }
+  if (yzt.length) {
+    const weakHigh = yzt.filter((x) => (Number(x.ylbc) || 1) >= 2).sort((a, b) => Number(a.zdp) - Number(b.zdp)).slice(0, 2);
+    if (weakHigh.length) keyLines.push('<b>负反馈观察：</b>' + weakHigh.map((x) => reviewStockChip(ztCode(x), x.n, '昨' + (Number(x.ylbc) || 1) + '板', sign(Number(x.zdp) || 0, 1) + '%', 'down')).join(' '));
+  }
+  if (FLOW.sample.length) {
+    const outflow = FLOW.sample.filter((x) => x.net < 0).sort((a, b) => a.net - b.net).slice(0, 2);
+    if (outflow.length) keyLines.push('<b>资金流出一侧：</b>' + outflow.map((x) => reviewStockChip(x.code, x.name, '', fmtAmt(x.net), 'down')).join(' '));
+  }
+  if (FLOW.lhb && FLOW.lhb.rows && FLOW.lhb.rows.length) {
+    const lhb = FLOW.lhb.rows.slice().sort((a, b) => b.net - a.net).slice(0, 2);
+    keyLines.push('<b>龙虎榜净买：</b>' + lhb.map((x) => reviewStockChip(x.code, x.name, '', fmtAmt(x.net), x.net >= 0 ? 'up' : 'down')).join(' '));
+  }
+  if (!keyLines.length) keyLines.push('<span class="muted">重点票会在连板池和资金样本就绪后出现。</span>');
+  keyLines.push('<span class="hint">这些票是明日判断板块强弱的温度计，不是无条件买入名单。</span>');
+  $('reviewKey').innerHTML = liHtml(keyLines, ['gold', 'orange', 'blue', 'blue', 'gray']);
+
+  reviewSetTag('reviewPlanTag', stageMeta.pos, stageMeta.cls);
+  const plan = [
+    '<b>市场闸门：</b>明日09:25先看昨日最高标竞价；低于 -3% 或竞价跌停数继续扩散，今天不做，不把“看起来强”当作信号。',
+    '<b>主线：</b>' + (mainline ? '只跟踪 ' + esc(mainline.name) + ' 等主线前排，先看核心是否高开、板块是否有2只以上同步走强；孤立异动直接放弃。' : '先等板块数据刷新，没有清晰主线就不选股。'),
+    '<b>个股地位：</b>情绪龙头 > 板块前排趋势票 > 低位补涨；1进2只小仓试错，2进3看助攻和弱转强，3进4要求高辨识度，4进5以上只轻仓或不做。',
+    '<b>执行节奏：</b>09:30–10:00只看不做；10:00后建立候选池；14:30–14:55再看涨幅3%–5%、量比和分时均价线，回踩不破且板块不背离才考虑。',
+    '<b>风控：</b>' + stageMeta.action + ' 单票不超过总资金20%，同板块不超过40%，止损 -3% 至 -4%；不补仓、不扛单、不把隔夜做成中线。'
   ];
-  $('reviewDiscipline').innerHTML = liHtml(disc, ['gold', 'orange', 'blue', 'gold', 'red']);
+  $('reviewPlan').innerHTML = liHtml(plan, ['red', 'gold', 'blue', 'gold', 'orange']);
+
+  hydrateReview().catch(() => {});
 }
 
 /* ---------------- 自选股 ---------------- */
@@ -11716,8 +12037,8 @@ function buildEtfChips() {
 const MOB_SECTIONS = [
 ['sec-market', '① 大盘'], ['sec-global', '② 全球'], ['sec-auction', '③ 竞价'], ['sec-zt', '④ 连板'],
 ['sec-watch', '⑤ 自选'], ['sec-kline', '⑥ K线'],
-['sec-flow', '⑦ 资金'], ['sec-dragon', '⑧ 热点'], ['sec-rank', '⑨ 排行'], ['sec-pick', '⑩ 选股'],
-['sec-review', '⑪ 复盘'], ['sec-etf', '⑫ ETF'], ['sec-method', '⑬ 方法'], ['sec-calendar', '⑭ 日历'],
+['sec-flow', '⑦ 资金'], ['sec-dragon', '⑧ 热点'], ['sec-review', '⑨ 复盘'], ['sec-rank', '⑩ 排行'], ['sec-pick', '⑪ 选股'],
+['sec-etf', '⑫ ETF'], ['sec-method', '⑬ 方法'], ['sec-calendar', '⑭ 日历'],
 ['sec-risk', '⑮ 风险']
 ];
 let ACTIVE_SECTION = 'sec-market';
@@ -12538,6 +12859,15 @@ function activateSection(id, noScroll) {
 /** 切回某个模块时重画它的图（隐藏期间画布宽度是 0） */
 function refreshMobSection(id) {
   try {
+    if (sectionNeedsMarketSnapshot(id) && (!DATA.snapshot || !DATA.snapshot.list || !DATA.snapshot.list.length)) {
+      refreshMarketData(false).catch(() => {});
+    }
+    if (sectionNeedsGlobalKlines(id) && !hasGlobalKlineCache()) {
+      refreshGlobalKlines().catch(() => {});
+    }
+    if (id === 'sec-global' && (!DATA.asia || !DATA.asia.t)) {
+      loadAsiaPacific(true).catch(() => {});
+    }
     if (id === 'sec-market') { renderMarket(); renderIndexMinute(true); }
     else if (id === 'sec-auction') { renderAuction(); }
     else if (id === 'sec-kline') { renderKlineHead(); renderKlinePanel(true); renderAnalyze(); }
@@ -13969,6 +14299,7 @@ function lazySection(id, task) {
 
 const ZT = { at: 0, data: null, loading: false };
 const ZT_NEXT = { at: 0, items: [], loading: false, market: null };
+const REVIEW = { ztAt: 0, flowAt: 0, boardAt: 0, loading: false };
 const AUCTION = { at: 0, data: null, loading: false, nextAutoAt: 0, fromArchive: false, fromSnapshot: false, armed: false, activeDay: '' };
 const AUCTION_PICK_KEY = 'apanel_auction_picks_v1';
 const AUCTION_LOCK_KEY = 'apanel_auction_lock_v1';
@@ -14522,12 +14853,23 @@ function auctionArchiveTime(value) {
   return date.toLocaleTimeString('zh-CN', { timeZone: 'Asia/Shanghai', hour12: false, hour: '2-digit', minute: '2-digit' });
 }
 
+/** 周末或行情日期仍停留在上一交易日时，按休市处理，避免把旧优选当成今日结果。 */
+function auctionIsNonTradingDay(now) {
+  const d = now || bjNow();
+  if (d.getDay() === 0 || d.getDay() === 6) return true;
+  const mins = d.getHours() * 60 + d.getMinutes();
+  if (mins < 555) return false;
+  const dayKey = '' + d.getFullYear() + pad2(d.getMonth() + 1) + pad2(d.getDate());
+  const indexQuote = DATA.quotes && DATA.quotes['sh000001'];
+  const clock = auctionQuoteClock(indexQuote);
+  return !!(clock && clock.date && clock.date !== dayKey);
+}
+
 function auctionClockState() {
   const d = bjNow();
-  const day = d.getDay();
   const mins = d.getHours() * 60 + d.getMinutes();
   const secs = mins * 60 + d.getSeconds();
-  if (day === 0 || day === 6) return { cls: 'gray', label: '休市复盘', live: false, note: '按最近交易日行情做竞价推演' };
+  if (auctionIsNonTradingDay(d)) return { cls: 'gray', label: '休市', live: false, note: '非交易日，不生成今日优选；上一交易日优选仅供复盘' };
   if (mins < 555) return { cls: 'blue', label: '盘前准备', live: false, note: '09:15 后刷新可读取竞价快照' };
   if (mins < 565) return { cls: 'gold', label: '竞价观察', live: true, note: '09:15–09:25 竞价仍可撤单，不提前定稿' };
   if (secs < 33902) return { cls: 'orange', label: '等待撮合完成', live: true, note: '09:25:02 后读取第一次字段完整快照' };
@@ -15031,6 +15373,8 @@ function renderAuction() {
   const phaseEl = $('auctionPhase');
   if (phaseEl) { phaseEl.className = 'tag ' + phase.cls; phaseEl.textContent = phase.label; }
   if (!d) return;
+  const trackingCard = $('auctionTrackingCard');
+  if (trackingCard) trackingCard.style.display = '';
   const model = d.decision || {};
   const verdict = $('auctionVerdict');
   const sub = $('auctionVerdictSub');
@@ -15258,61 +15602,64 @@ function renderAuctionPending(message) {
   AUCTION.data = null;
   AUCTION.fromArchive = false;
   AUCTION.fromSnapshot = false;
+  const nowDate = bjNow();
+  const nonTrading = auctionIsNonTradingDay(nowDate);
   const previous = auctionPreviousPlan(ymdCompact(0));
   const pendingPicks = previous && Array.isArray(previous.picks) ? previous.picks : [];
-  const nowDate = bjNow();
-  const weekend = nowDate.getDay() === 0 || nowDate.getDay() === 6;
   const verificationDay = pendingPicks.length
     ? auctionVerificationDay(previous.date)
     : auctionNextTradingDay(ymdCompact(0));
   const blocked = /超过|不完整|未能生成|失败/.test(String(message || '')) && !/重试/.test(String(message || ''));
   const date = auctionDateText(ymdCompact(0));
   const phase = $('auctionPhase');
-  if (phase) { phase.className = 'tag ' + (weekend ? 'gray' : blocked ? 'orange' : 'blue'); phase.textContent = weekend ? '周末休市' : blocked ? '不生成优选' : '等待 09:25 定稿'; }
+  if (phase) { phase.className = 'tag ' + (nonTrading ? 'gray' : blocked ? 'orange' : 'blue'); phase.textContent = nonTrading ? '休市' : blocked ? '不生成优选' : '等待 09:25 定稿'; }
   const status = $('auctionStatus');
   if (status) status.innerHTML = '<span class="gold">' + esc(message) + '</span>';
   const verdict = $('auctionVerdict');
   if (verdict) verdict.textContent = blocked
     ? '数据不完整，不生成今日优选'
-    : weekend
-      ? pendingPicks.length ? '周末休市 · 上一交易日优选 ' + pendingPicks.length + ' 只' : '周末休市 · 暂无上一交易日优选'
+    : nonTrading
+      ? pendingPicks.length ? '今日休市 · 上一交易日优选 ' + pendingPicks.length + ' 只' : '今日休市 · 上一交易日无优选'
       : pendingPicks.length ? '昨日优选 ' + pendingPicks.length + ' 只 · 等待今日 09:25 验证' : '今日竞价尚未定稿';
   const sub = $('auctionVerdictSub');
   if (sub) sub.textContent = blocked
     ? message
-    : pendingPicks.length
-      ? (weekend ? '下一交易日 ' + auctionDateText(verificationDay) + ' 09:25 验证；' : '') +
-        '如已买入：' + pendingPicks.map((x) => x.name).join(' / ') + '；按下一交易日竞价与持仓剧本执行。'
-      : (weekend ? '下一交易日 ' + auctionDateText(verificationDay) + ' 09:25 生成竞价优选。' : '09:25:02 后取第一次字段完整快照；首次成功生成后，股票、分数和排名固定。');
+    : nonTrading
+      ? '今日不生成新的优选；上一交易日优选仅供复盘，下一交易日 ' + auctionDateText(verificationDay) + ' 09:25 重新生成。'
+      : pendingPicks.length
+        ? '如已买入：' + pendingPicks.map((x) => x.name).join(' / ') + '；按今日竞价与持仓剧本执行。'
+        : '09:25:02 后取第一次字段完整快照；首次成功生成后，股票、分数和排名固定。';
   const score = $('auctionScore');
   if (score) score.textContent = '--';
   const dateLabel = $('auctionDateLabel');
   if (dateLabel) dateLabel.textContent = date;
   const planTitle = $('auctionPlanTitle');
-  if (planTitle) planTitle.textContent = weekend ? '上一交易日优选' : '今日竞价优选';
+  if (planTitle) planTitle.textContent = nonTrading ? '今日优选 · 休市' : '今日竞价优选';
   const reasons = $('auctionReasons');
   if (reasons) reasons.innerHTML = '<div class="li"><span class="dot ' + (blocked ? 'red' : 'gray') + '"></span><span>' +
-    esc(blocked ? message : weekend ? '周末休市，不生成新的竞价优选；下一交易日 ' + auctionDateText(verificationDay) + ' 09:25 自动执行。' : '等待 09:25:02 后的首次字段完整快照，不使用 09:24 可撤单数据。') + '</span></div>';
+    esc(blocked ? message : nonTrading ? '当前为非交易日，今日不生成优选；上一交易日优选仅供复盘，下一交易日 ' + auctionDateText(verificationDay) + ' 09:25 自动生成。' : '等待 09:25:02 后的首次字段完整快照，不使用 09:24 可撤单数据。') + '</span></div>';
   const actionability = $('auctionActionability');
-  if (actionability) actionability.innerHTML = weekend
-    ? '当前周末休市：不等待“今日竞价”；上一交易日持仓在下一交易日 ' + esc(auctionDateText(verificationDay)) + ' 09:25 验证。'
+  if (actionability) actionability.innerHTML = nonTrading
+    ? '当前休市：不生成今日优选；“上一交易日优选”继续保留，用于复盘和持仓参考。下一交易日 ' + esc(auctionDateText(verificationDay)) + ' 09:25 重新生成。'
     : '09:25:02后自动重试并锁定第一次完整结果；超过09:26仍可继续补取，不会失效。';
   const metrics = $('auctionMetrics');
   if (metrics) metrics.innerHTML = ['最高标竞价', '动态阈值', '全局乘数', '锁定时间'].map((label) =>
     '<div class="card"><div class="card-title muted">' + label + '</div><div class="price">--</div><div class="card-sub">等待完整竞价快照</div></div>').join('');
   const environment = $('auctionEnvironment');
-  if (environment) environment.textContent = weekend ? '市场环境：周末休市，按上一交易日定稿复盘，下一交易日重新生成。' : '市场环境等待最高标代表与昨日涨停池数据。';
+  if (environment) environment.textContent = nonTrading ? '市场环境：休市中，今日不生成新名单；上一交易日优选仅供复盘。' : '市场环境等待最高标代表与昨日涨停池数据。';
   const ladderMode = $('auctionLadderMode');
   const ladderHint = $('auctionLadderModeHint');
   if (ladderMode) { ladderMode.className = 'tag gray'; ladderMode.textContent = '等待情绪判断'; }
-  if (ladderHint) ladderHint.textContent = weekend ? '周末休市，沿用上一交易日情绪周期；下一交易日09:25重新判定。' : '09:25 定稿后结合最高标竞价、市场高度和高开广度判定连板情绪周期。';
+  if (ladderHint) ladderHint.textContent = nonTrading ? '休市期间不生成今日名单；上一交易日情绪仅作复盘。' : '09:25 定稿后结合最高标竞价、市场高度和高开广度判定连板情绪周期。';
   const plans = $('auctionPlans');
-  if (plans) plans.innerHTML = '<div class="muted">' + esc(blocked ? '今日不生成优选：' + message : weekend ? '周末休市，不生成新的优选；左侧显示上一交易日定稿，下一交易日 ' + auctionDateText(verificationDay) + ' 09:25 更新。' : '09:25 后系统会自动筛选并锁定；也可点击“一键选股”提前补取。') + '</div>';
+  if (plans) plans.innerHTML = '<div class="muted">' + esc(blocked ? '今日不生成优选：' + message : nonTrading ? '非交易日不生成今日优选；右侧保留上一交易日优选用于复盘。' : '09:25 后系统会自动筛选并锁定；也可点击“一键选股”提前补取。') + '</div>';
+  const trackingCard = $('auctionTrackingCard');
+  if (trackingCard) trackingCard.style.display = '';
   renderAuctionTracking(auctionPendingTracking(previous));
   const sectors = $('auctionSectors');
-  if (sectors) sectors.innerHTML = '<tbody><tr><td class="muted" colspan="5">' + (weekend ? '周末休市 · 下一交易日更新' : '等待今日竞价定稿') + '</td></tr></tbody>';
+  if (sectors) sectors.innerHTML = '<tbody><tr><td class="muted" colspan="5">' + (nonTrading ? '休市 · 下一交易日更新' : '等待今日竞价定稿') + '</td></tr></tbody>';
   const candidates = $('auctionCandidates');
-  if (candidates) candidates.innerHTML = '<tbody><tr><td class="muted" colspan="10">' + (weekend ? '周末休市 · 下一交易日09:25重新生成候选榜' : '等待 09:25:02 后的首次字段完整快照；不使用 09:24 可撤单数据。') + '</td></tr></tbody>';
+  if (candidates) candidates.innerHTML = '<tbody><tr><td class="muted" colspan="10">' + (nonTrading ? '休市 · 下一交易日09:25重新生成候选榜' : '等待 09:25:02 后的首次字段完整快照；不使用 09:24 可撤单数据。') + '</td></tr></tbody>';
   const watchPool = $('auctionWatchPool');
   if (watchPool) watchPool.innerHTML = '<div class="muted">尚无开板豁免观察标的。</div>';
   const watchCount = $('auctionWatchCount');
@@ -15343,9 +15690,8 @@ function maybeAutoAuctionRefresh() {
 
 function auctionLockWindow(now) {
   const d = now || bjNow();
-  const day = d.getDay();
   const sec = d.getHours() * 3600 + d.getMinutes() * 60 + d.getSeconds();
-  if (day < 1 || day > 5) return { state: 'closed', note: '非交易日不生成竞价优选' };
+  if (auctionIsNonTradingDay(d)) return { state: 'closed', note: '非交易日不生成今日优选；上一交易日优选仅供复盘' };
   if (sec < 33902) return { state: 'before', note: '09:25:02 后开始读取第一次字段完整快照' };
   if (sec <= 34200) return { state: 'open', note: '09:25后自动重试；首次完整即锁定，不再因超过09:26而放弃' };
   if (sec < 54000) return { state: 'late', note: '09:25竞价结果仍可补取；将用日开盘价与09:25历史分钟量能重建，不使用盘中累计成交替代' };
@@ -17148,13 +17494,21 @@ async function refreshMarketData(showProgress) {
     } : null);
     DATA.snapshot = { t: Date.now(), list: snap.list, stats: snap.stats, total: snap.total };
     LOCAL_IDX = null;                       /* 全市场名单更新了，搜索索引下次重建 */
-    renderMarket();
-    renderRank();
-    renderReview();
-    renderForecast();
-    renderSentiment();
-    renderHot();
-    renderAnomalyBoards();
+    if (ACTIVE_SECTION === 'sec-market') {
+      renderMarket();
+      renderForecast();
+      renderSentiment();
+    } else if (ACTIVE_SECTION === 'sec-rank') {
+      renderRank();
+    } else if (ACTIVE_SECTION === 'sec-review') {
+      renderReview();
+    } else if (ACTIVE_SECTION === 'sec-dragon') {
+      renderHot();
+      renderAnomalyBoards();
+    } else if (ACTIVE_SECTION === 'sec-flow') {
+      renderFlow();
+      if (!FLOW.sample.length) refreshFlowModule();
+    }
   } catch (e) {
     if (hint) hint.innerHTML = '<span class="orange">全市场数据获取失败：' + esc(e.message) + '</span>';
     const rh = $('rankHint');
@@ -17185,37 +17539,68 @@ async function refreshGlobalKlines() {
 }
 
 function renderQuoteDependents() {
-  renderIndexCards();
-  syncMarketMinuteTitle();
-  renderGlobalGrid();
-  renderGlobalSummary();
-  syncAsiaTencent();
-  renderMarket();
-  renderForecast();
-  renderWatch();
-  renderKlineHead();
+  if (ACTIVE_SECTION === 'sec-market') {
+    renderIndexCards();
+    syncMarketMinuteTitle();
+    renderMarket();
+    renderForecast();
+    renderSentiment();
+  } else if (ACTIVE_SECTION === 'sec-global') {
+    renderGlobalGrid();
+    renderGlobalSummary();
+    syncAsiaTencent();
+  } else if (ACTIVE_SECTION === 'sec-watch') {
+    renderWatch();
+  } else if (ACTIVE_SECTION === 'sec-kline') {
+    renderKlineHead();
+  } else if (ACTIVE_SECTION === 'sec-rank') {
+    renderRank();
+  } else if (ACTIVE_SECTION === 'sec-review') {
+    renderReview();
+  } else if (ACTIVE_SECTION === 'sec-dragon') {
+    renderHot();
+    renderAnomalyBoards();
+  } else if (ACTIVE_SECTION === 'sec-zt') {
+    renderZt();
+  } else if (ACTIVE_SECTION === 'sec-etf') {
+    renderEtf();
+  }
+  renderSourceStatus();
   updateLastUpdate();
 }
 
+function sectionNeedsMarketSnapshot(id) {
+  return ['sec-market', 'sec-flow', 'sec-dragon', 'sec-rank', 'sec-review', 'sec-pick'].includes(id);
+}
+
+function sectionNeedsGlobalKlines(id) {
+  return id === 'sec-market' || id === 'sec-global';
+}
+
+function hasGlobalKlineCache() {
+  return GLOBAL_INDEXES.concat(['sh000001', 'sh000300']).every((code) =>
+    !!(DATA.klineCache && DATA.klineCache[code + '|day|' + KL_COUNT])
+  );
+}
+
 async function refreshAll(showProgress) {
-  await Promise.allSettled([
-    refreshQuotes(),
-    refreshMarketData(showProgress),
-    refreshBoards(),
-    refreshGlobalKlines(),
-    renderIndexMinute(true)
-  ]);
+  const active = ACTIVE_SECTION;
+  const tasks = [refreshQuotes()];
+  if (sectionNeedsMarketSnapshot(active)) tasks.push(refreshMarketData(showProgress));
+  if (active === 'sec-flow' || active === 'sec-dragon' || active === 'sec-review') tasks.push(refreshBoards());
+  if (sectionNeedsGlobalKlines(active)) tasks.push(refreshGlobalKlines());
+  if (active === 'sec-market') tasks.push(renderIndexMinute(true));
+  await Promise.allSettled(tasks);
   /* 亚太市场放在行情快照之后：腾讯兜底行要用到刚抓到的港股 / 期货快照 */
-  await loadAsiaPacific(true).catch(() => {});
+  if (active === 'sec-market' || active === 'sec-global') await loadAsiaPacific(true).catch(() => {});
   renderQuoteDependents();
-  renderGlobalGrid();
-  renderRank();
-  renderReview();
-  await renderKlinePanel();
-  await renderAnalyze();
+  if (ACTIVE_SECTION === 'sec-kline') {
+    await renderKlinePanel();
+    await renderAnalyze();
+  }
   /* 资金流向 / 龙虎榜：放到后台异步，不阻塞首屏 */
-  refreshLHBModule();
-  refreshFlowModule();
+  if (ACTIVE_SECTION === 'sec-dragon') refreshLHBModule();
+  if (ACTIVE_SECTION === 'sec-flow') refreshFlowModule();
 }
 
 let FAST_TIMER = null, MID_TIMER = null, SLOW_TIMER = null, CLOCK_TIMER = null, TICK_COUNT = 0;
@@ -17226,14 +17611,15 @@ async function fastTick() {
   TICK_COUNT++;
   await refreshQuotes();
   renderQuoteDependents();
-  tickAnomaly();
-  if (TICK_COUNT % 6 === 0) await renderIndexMinute(true);
-  if (TICK_COUNT % 6 === 0 || UI.kline.period === 'min') await renderKlinePanel(true);
+  if (ACTIVE_SECTION === 'sec-dragon') tickAnomaly();
+  if (ACTIVE_SECTION === 'sec-market' && TICK_COUNT % 6 === 0) await renderIndexMinute(true);
+  if (ACTIVE_SECTION === 'sec-kline' && (TICK_COUNT % 6 === 0 || UI.kline.period === 'min')) await renderKlinePanel(true);
 }
 
 /** 中速循环：外围指数日线与迷你图（外盘交易时段保持实时） */
 async function midTick() {
   if (document.hidden) return;
+  if (ACTIVE_SECTION !== 'sec-global') return;
   await refreshGlobalKlines();
   renderGlobalGrid();
   renderGlobalSummary();
@@ -17244,17 +17630,20 @@ async function midTick() {
 /** 慢速循环：全市场快照 / 板块 / 外盘日线（接口较重，降低频率） */
 async function slowTick() {
   if (document.hidden) return;
+  if (!['sec-market', 'sec-rank', 'sec-review', 'sec-dragon'].includes(ACTIVE_SECTION)) return;
   await refreshMarketData(false);
-  await refreshBoards();
-  await refreshGlobalKlines();
-  renderGlobalGrid();
-  renderRank();
-  renderReview();
-  renderMarket();
-  renderForecast();
-  renderSentiment();
-  renderHot();
-  renderAnomalyBoards();
+  if (ACTIVE_SECTION === 'sec-market') {
+    renderMarket();
+    renderForecast();
+    renderSentiment();
+  } else if (ACTIVE_SECTION === 'sec-rank') {
+    renderRank();
+  } else if (ACTIVE_SECTION === 'sec-review') {
+    renderReview();
+  } else if (ACTIVE_SECTION === 'sec-dragon') {
+    renderHot();
+    renderAnomalyBoards();
+  }
   if (Date.now() - FLOW.lhbAt > 1800000) refreshLHBModule();
   /* 连板股数据每 2 分钟、ETF 行情每 10 分钟滚动更新（已加载过才刷新） */
   if (ZT.data && Date.now() - ZT.at > 120000) { loadZtData(true).catch(() => {}); }
@@ -17483,7 +17872,7 @@ if (document.readyState === 'loading') {
   }, { passive: true });
 
   const main = document.querySelector('main');
-  if (main && 'MutationObserver' in window) {
+  if (main && 'MutationObserver' in window && window.innerWidth > 1024 && !reduceMotion.matches) {
     const lastTick = new WeakMap();
     const observer = new MutationObserver((records) => {
       if (reduceMotion.matches) return;
@@ -17515,18 +17904,6 @@ if (document.readyState === 'loading') {
     }
   }
   normalizeButtonTypes(document);
-  if ('MutationObserver' in window && document.body) {
-    const buttonObserver = new MutationObserver((records) => {
-      records.forEach((record) => {
-        record.addedNodes.forEach((node) => {
-          if (node.nodeType !== 1) return;
-          if (node.tagName === 'BUTTON' && !node.getAttribute('type')) node.type = 'button';
-          normalizeButtonTypes(node);
-        });
-      });
-    });
-    buttonObserver.observe(document.body, { childList: true, subtree: true });
-  }
 })();
 </script>
 </body>
