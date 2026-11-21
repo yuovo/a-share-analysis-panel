@@ -7705,7 +7705,8 @@ function renderReview() {
   const dt = ztData && Array.isArray(ztData.dt) ? ztData.dt : [];
   const yzt = ztData && Array.isArray(ztData.yzt) ? ztData.yzt : [];
   const marketCtx = ztData ? limitScanMarketContext() : null;
-  const tempInfo = marketTemperature(stats, DATA.quotes['sh000001'], shMacdInfo());
+  /* 复盘温度只使用同步的全市场快照和指数快照，避免日线加载先后导致电脑与手机温度不同。 */
+  const tempInfo = marketTemperature(stats, DATA.quotes['sh000001'], null);
   const temp = tempInfo && Number.isFinite(tempInfo.value) ? tempInfo.value : NaN;
   const limitUpCount = zt.length || (stats && Number(stats.limitUp)) || 0;
   const limitDownCount = dt.length || (stats && Number(stats.limitDown)) || 0;
@@ -7776,9 +7777,6 @@ function renderReview() {
   }
   if (Number.isFinite(breakRate)) summary.push('<b>封板质量：</b>炸板率 ' + fmt(breakRate, 1) + '%，' +
     (breakRate >= 45 ? '封板承接差，次日高开兑现风险大。' : breakRate >= 30 ? '接力一般，只做板块前排。' : '封板质量尚可，但仍需竞价验证。'));
-  const macd = shMacdInfo();
-  if (macd) summary.push('<b>指数技术面：</b>上证日线 DIF ' + fmt(macd.dif, 2) + ' / DEA ' + fmt(macd.dea, 2) +
-    '，' + (macd.dif > macd.dea ? '仍偏多' : '仍偏空') + '；技术面只作环境判断，不替代情绪和主线。');
   if (!summary.length) summary.push('<span class="muted">全市场快照加载中，七步框架会随数据自动补全。</span>');
   $('reviewSummary').innerHTML = liHtml(summary, ['gold', 'blue', 'orange', 'blue', 'gray']);
 
