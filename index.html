@@ -334,8 +334,10 @@ canvas{display:block;width:100%;}
 .kl-name-line{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;margin:2px 0 6px;}
 .kl-name{font-size:17.5px;font-weight:800;color:var(--text);letter-spacing:.2px;}
 .kl-name .kln-code{font-family:Consolas,Menlo,monospace;font-size:13px;font-weight:600;color:var(--dim);margin-left:7px;}
-.search-wrap{position:relative;flex:1 1 340px;min-width:250px;}
-.search-wrap{position:relative;flex:1 1 340px;min-width:250px;}
+.search-wrap{position:relative;z-index:120;isolation:isolate;flex:1 1 340px;min-width:250px;}
+.search-wrap:focus-within{z-index:210;}
+.kl-search-row,.watch-search-row{position:relative;z-index:120;}
+.kl-search-row:focus-within,.watch-search-row:focus-within{z-index:220;}
 .search-wrap .input{width:100%;}
 .search-history{display:flex;align-items:center;gap:8px;min-width:0;margin:0 0 9px;}
 .search-history-list{display:flex;align-items:center;gap:8px;flex:1;min-width:0;overflow-x:auto;padding-bottom:2px;-webkit-overflow-scrolling:touch;scrollbar-width:thin;}
@@ -365,10 +367,11 @@ canvas{display:block;width:100%;}
   .watch-condition-grid{grid-template-columns:1fr;}
 }
 .suggest{
-  position:absolute;left:0;right:0;top:calc(100% + 6px);z-index:80;
-  background:#101a28;border:1px solid var(--line2);border-radius:11px;
+  position:absolute;left:0;right:0;top:calc(100% + 6px);z-index:210;
+  background:var(--panel2);border:1px solid var(--line2);border-radius:11px;
   box-shadow:0 18px 40px rgba(0,0,0,.55);
-  max-height:352px;overflow-y:auto;display:none;
+  max-height:352px;overflow-y:auto;overscroll-behavior:contain;display:none;
+  -webkit-backdrop-filter:none;backdrop-filter:none;transform:translateZ(0);
 }
 .suggest.show{display:block;}
 .sg-head{padding:6px 11px;font-size:11px;color:var(--dim);background:rgba(140,156,182,.07);}
@@ -745,7 +748,7 @@ main{padding-bottom:calc(24px + env(safe-area-inset-bottom));}
   .tbl-wrap{-webkit-overflow-scrolling:touch;}
   table.tbl th,table.tbl td{padding:8px 8px;font-size:12px;}
   .chart-legend{gap:10px;font-size:11px;}
-  .suggest{max-height:52vh;}
+  .suggest{max-height:min(42vh,340px);background:var(--panel2);}
   #toTop{bottom:calc(14px + env(safe-area-inset-bottom));}
   .grid{gap:11px;}
 }
@@ -2516,6 +2519,16 @@ html[data-theme="dark"] .cal-stock,
 html[data-theme="dark"] .cal-watch-chip,
 html[data-theme="dark"] .chip,
 html[data-theme="dark"] .seg-btn{box-shadow:0 12px 32px rgba(0,0,0,.28),inset 0 1px rgba(255,255,255,.045);}
+html[data-theme] .suggest{
+  position:absolute;
+  z-index:210;
+  background:var(--panel2);
+  border-color:var(--line2);
+  -webkit-backdrop-filter:none;
+  backdrop-filter:none;
+  box-shadow:0 22px 55px rgba(0,0,0,.28),inset 0 1px rgba(255,255,255,.14);
+}
+html[data-theme] .sg-head{background:var(--surface-muted);}
 html[data-theme] .card:hover{border-color:var(--line2);background:var(--surface-strong);}
 html[data-theme] .card-sub,
 html[data-theme] .muted,
@@ -3143,7 +3156,7 @@ body::after,
       </div>
     </div>
 
-    <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:10px;">
+    <div class="kl-search-row" style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:10px;">
       <span class="hint">搜索标的</span>
       <div class="search-wrap">
         <input class="input" id="codeInput" autocomplete="off" spellcheck="false"
@@ -3677,7 +3690,7 @@ body::after,
       <div class="spacer"></div>
       <button class="btn" id="btnBatch">批量查看（全套指标快照）</button>
     </div>
-    <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:10px;">
+    <div class="watch-search-row" style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:10px;">
       <div class="search-wrap watch-search-wrap">
         <input class="input" id="watchInput" autocomplete="off" spellcheck="false" placeholder="输入代码 / 中文名 / 拼音，如 600519 / 贵州茅台 / gzmt" />
         <div class="suggest" id="watchSuggestBox"></div>
@@ -5386,6 +5399,8 @@ const DATA = {
   quoteAt: 0,
   klineCache: {},      // key -> { t, candles }
   minuteCache: {},     // code -> { t, data }
+  klinePending: {},    // key -> Promise，合并同一标的的并发请求
+  minutePending: {},   // code -> Promise，合并同一标的的并发请求
   bigOrder: {},        // code -> { t, data } 每分钟大单资金流
   profiles: {},        // code -> { t, data } 东财行业 / 总市值 / 流通市值
   snapshot: null,      // { t, list, stats }
@@ -5849,9 +5864,12 @@ async function getKline(code, period, count, maxAgeMs) {
   const hit = DATA.klineCache[key];
   const age = maxAgeMs == null ? 45000 : maxAgeMs;
   if (hit && Date.now() - hit.t < age) return hit.candles;
-  const candles = await fetchKline(code, period, count);
-  DATA.klineCache[key] = { t: Date.now(), candles: candles };
-  return candles;
+  if (DATA.klinePending[key]) return DATA.klinePending[key];
+  DATA.klinePending[key] = fetchKline(code, period, count).then((candles) => {
+    DATA.klineCache[key] = { t: Date.now(), candles: candles };
+    return candles;
+  }).finally(() => { delete DATA.klinePending[key]; });
+  return DATA.klinePending[key];
 }
 
 /* ---------------- 分时（腾讯） ---------------- */
@@ -6027,9 +6045,12 @@ async function getMinute(code, maxAgeMs) {
   const hit = DATA.minuteCache[code];
   const age = maxAgeMs == null ? 30000 : maxAgeMs;
   if (hit && Date.now() - hit.t < age) return hit.data;
-  const data = await fetchMinute(code);
-  DATA.minuteCache[code] = { t: Date.now(), data: data };
-  return data;
+  if (DATA.minutePending[code]) return DATA.minutePending[code];
+  DATA.minutePending[code] = fetchMinute(code).then((data) => {
+    DATA.minuteCache[code] = { t: Date.now(), data: data };
+    return data;
+  }).finally(() => { delete DATA.minutePending[code]; });
+  return DATA.minutePending[code];
 }
 
 /* ---------------- 每分钟大单资金流（东方财富） ----------------
@@ -6367,6 +6388,7 @@ searchHistory: [],
   minuteIndex: null
 };
 const SEARCH_HISTORY_KEY = 'apanel_search_history_v1';
+const MARKET_SNAPSHOT_CACHE_KEY = 'apanel_market_snapshot_v1';
 
 const CLOUD = {
 data: null, at: 0, loading: false, scope: 'all', metric: 'mktCap',
@@ -9636,7 +9658,7 @@ function renderHot() {
   if (h) h.innerHTML = ind.length ? '行业 ' + (DATA.boards.industry || []).length + ' 个 · 概念 ' +
     (DATA.boards.concept || []).length + ' 个 · 按涨跌幅排序 · 更新 ' + nowHms() : '板块数据加载中…';
   renderHotCoverage();
-  ensureHotBoardLimit().catch(() => {});
+  if (ACTIVE_SECTION === 'sec-dragon') ensureHotBoardLimit().catch(() => {});
 }
 
 /* ---------------- 个股异动 ---------------- */
@@ -11742,7 +11764,9 @@ function renderSuggest(items, key, loading) {
   let h = '<div class="sg-head">匹配 ' + items.length + ' 个' + (loading ? ' · 正在联网补全 ETF / 港股 / 美股…' : '') +
     ' · ↑↓ 选择，回车载入</div>';
   if (!items.length) {
-    h += '<div class="sg-empty">没找到。可以试：中文名（贵州茅台）、拼音首字母（gzmt）、代码片段（5103）、品种名（创业板ETF / 券商ETF / 恒生科技）。</div>';
+    h += loading
+      ? '<div class="sg-empty">正在搜索本地与联网结果…</div>'
+      : '<div class="sg-empty">没找到。可以试：中文名（贵州茅台）、拼音首字母（gzmt）、代码片段（5103）、品种名（创业板ETF / 券商ETF / 恒生科技）。</div>';
   } else {
     items.forEach((it, i) => { h += suggestRowHtml(it, key, i === 0); });
   }
@@ -17040,7 +17064,10 @@ recordSearchHistory(code, o.name || codeName(code));
   /* 没有历史K线但有当日分时的（美股个股）：自动切到分时，避免一进来只看到一句「不可用」 */
   if (!o.period && !klineCapable(code) && minuteCapable(code)) UI.kline.period = 'min';
   try {
-    const q = await fetchQuotes([code]);
+    const cachedQ = DATA.quotes[code];
+    const q = cachedQ && Date.now() - DATA.quoteAt < 10000
+      ? { [code]: cachedQ }
+      : await fetchQuotes([code]);
     Object.assign(DATA.quotes, q);
     if (q[code] && q[code].name) {
       rememberName(code, q[code].name);
@@ -17484,29 +17511,58 @@ async function refreshQuotes() {
   });
 }
 
+function restoreMarketSnapshotCache() {
+  if (DATA.snapshot) return false;
+  try {
+    const cached = JSON.parse(localStorage.getItem(MARKET_SNAPSHOT_CACHE_KEY) || 'null');
+    if (!cached || !cached.t || Date.now() - cached.t > 6 * 3600 * 1000) return false;
+    if (!Array.isArray(cached.list) || cached.list.length < 1000 || !cached.stats) return false;
+    DATA.snapshot = { t: cached.t, list: cached.list, stats: cached.stats, total: cached.total || cached.list.length };
+    LOCAL_IDX = null;
+    srcMark('list', 'warn', '本地缓存 ' + cached.list.length + ' 只 · 正在后台更新');
+    return true;
+  } catch (e) {
+    return false;
+  }
+}
+
+function saveMarketSnapshotCache(snapshot) {
+  try {
+    localStorage.setItem(MARKET_SNAPSHOT_CACHE_KEY, JSON.stringify({
+      t: snapshot.t, list: snapshot.list, stats: snapshot.stats, total: snapshot.total
+    }));
+  } catch (e) { /* 超出配额时仍使用本次内存数据 */ }
+}
+
+function renderMarketSnapshotViews() {
+  if (ACTIVE_SECTION === 'sec-market') {
+    renderMarket();
+    renderForecast();
+    renderSentiment();
+  } else if (ACTIVE_SECTION === 'sec-rank') {
+    renderRank();
+  } else if (ACTIVE_SECTION === 'sec-review') {
+    renderReview();
+  } else if (ACTIVE_SECTION === 'sec-dragon') {
+    renderHot();
+    renderAnomalyBoards();
+  } else if (ACTIVE_SECTION === 'sec-flow') {
+    renderFlow();
+    if (!FLOW.sample.length) refreshFlowModule();
+  }
+}
+
 async function refreshMarketData(showProgress) {
   const hint = $('marketHint');
+  if (restoreMarketSnapshotCache()) renderMarketSnapshotViews();
   try {
     const snap = await fetchMarketSnapshot(showProgress ? (done, pages) => {
       if (hint) hint.textContent = '全市场数据加载中… ' + done + '/' + pages + ' 页';
     } : null);
     DATA.snapshot = { t: Date.now(), list: snap.list, stats: snap.stats, total: snap.total };
+    saveMarketSnapshotCache(DATA.snapshot);
     LOCAL_IDX = null;                       /* 全市场名单更新了，搜索索引下次重建 */
-    if (ACTIVE_SECTION === 'sec-market') {
-      renderMarket();
-      renderForecast();
-      renderSentiment();
-    } else if (ACTIVE_SECTION === 'sec-rank') {
-      renderRank();
-    } else if (ACTIVE_SECTION === 'sec-review') {
-      renderReview();
-    } else if (ACTIVE_SECTION === 'sec-dragon') {
-      renderHot();
-      renderAnomalyBoards();
-    } else if (ACTIVE_SECTION === 'sec-flow') {
-      renderFlow();
-      if (!FLOW.sample.length) refreshFlowModule();
-    }
+    renderMarketSnapshotViews();
   } catch (e) {
     if (hint) hint.innerHTML = '<span class="orange">全市场数据获取失败：' + esc(e.message) + '</span>';
     const rh = $('rankHint');
@@ -17515,11 +17571,11 @@ async function refreshMarketData(showProgress) {
 }
 
 async function refreshBoards() {
-  for (const kind of ['industry', 'concept']) {
-    try {
-      DATA.boards[kind] = await fetchBoards(kind);
-    } catch (e) { /* 保留上一次结果 */ }
-  }
+  const kinds = ['industry', 'concept'];
+  const rows = await Promise.allSettled(kinds.map((kind) => fetchBoards(kind)));
+  rows.forEach((r, i) => {
+    if (r.status === 'fulfilled') DATA.boards[kinds[i]] = r.value;
+  });
 }
 
 async function refreshGlobalKlines() {
