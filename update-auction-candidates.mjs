@@ -287,7 +287,8 @@ async function main() {
     return;
   }
   if (!historical && beijingSeconds() > 79200) {
-    throw new Error('Refuse to generate stale candidate data after 22:00');
+    console.warn(`Skip ${day}: refusing to generate stale candidate data after 22:00`);
+    return;
   }
   if (await existingCurrent(day) && process.env.AUCTION_FORCE !== '1') {
     console.log(`Skip ${day}: shared candidates already exist`);
