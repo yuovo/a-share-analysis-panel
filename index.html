@@ -2714,13 +2714,28 @@ body::after,
 @media (max-width:1024px){
   html[data-theme] body::before,
   html[data-theme] body::after{
-    filter:blur(12px);
+    filter:none;
+  }
+  html[data-theme] .topbar{
+    -webkit-backdrop-filter:none!important;
+    backdrop-filter:none!important;
+    background:var(--surface-strong);
   }
   html[data-theme] .panel{
-    -webkit-backdrop-filter:blur(10px);
-    backdrop-filter:blur(10px);
+    -webkit-backdrop-filter:none!important;
+    backdrop-filter:none!important;
+    background-color:var(--panel);
+    transform-style:flat;
   }
-  html[data-theme] .panel.page-on>*{animation-duration:.28s;}
+  html[data-theme] .panel.page-on>*{animation:none!important;}
+  #sec-analyze>.card,
+  #sec-analyze>.analysis-block,
+  #sec-review .review-step,
+  #sec-rank .card,
+  #sec-dragon .card{
+    content-visibility:auto;
+    contain-intrinsic-size:auto 260px;
+  }
 }
 </style>
 </head>
